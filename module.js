@@ -222,10 +222,11 @@
 			match[3].replace(/\s*([\w.$*]+)(?:\s+as\s+([\w.$]+))?/g, function(_, item, as) {
 				imports[0]["import"][item] = as || item;
 			});
-		} else if((match = what.match(/^import\s+(.*)$/))) {
-			match[1].replace(/\s*([\w.$]+)(?:\s+as\s+([\w.$]+))?,?/g, function(_, pkg, as) {
+		} else if((match = what.match(/^import\s+(class )?(.*)$/))) {
+			var isClassImport = match[1];
+			match[2].replace(/\s*([\w.$]+)(?:\s+as\s+([\w.$]+))?,?/g, function(_, pkg, as) {
 				fullPkg = resolveRelativePath(pkg, path);
-				imports[imports.length] = {from: fullPkg, as: (as ? as : pkg) };
+				imports[imports.length] = {from: fullPkg, as: (as ? as : pkg), single: isClassImport };
 			});
 		} else {
 			if(SyntaxError) {
@@ -291,6 +292,10 @@
 					c = c[segment];
 				}
 				c[segments[slen]] = modules[pkg];
+				if (item.single) {
+					var className = pkg.split('.').pop();
+					c[segments[slen]] = c[segments[slen]][className];
+				}
 			} else if(item["import"]) {
 				if(item["import"]['*']) {
 					for(var k in modules[pkg]) { context[k] = modules[pkg][k]; }
