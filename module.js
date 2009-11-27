@@ -27,8 +27,11 @@
 		var module = GLOBAL.module = bind(this, _moduleImport, GLOBAL, '');
 	}
 
-	module.path = ['.']; // this can be overwritten
-	cwd = '.';
+	/* Configuration
+	 ***************/
+	// These are the configurable options. Each can be set after having loaded module.js by e.g. module.path.push('js');
+
+	module.path = ['.'];
 	
 	if(typeof eval('(function(){})') == 'undefined') {
 		eval = function(src) {
@@ -139,12 +142,7 @@
 		throw new Error("Module not found: " + pathString + " (looked in " + paths.join(', ') + ")");
 	}
 	
-	var makeRelative = function(path) {
-		return path.replace(cwd + '/', '').replace(cwd, '');
-	}
-	
-	module.__path = makeRelative(window.location.toString());
-
+	module.__path = window.location.toString();
 	module.basePath = module.path[module.path.length-1];
 	var modules = {log: log, module:module};
 	
@@ -241,8 +239,8 @@
 					
 					// TODO: FIX for "trailing ." case
 					var tmp = result.location.split('/');
-					newContext.module.__dir = makeRelative(tmp.slice(0,tmp.length-1).join('/'));
-					newContext.module.__path = makeRelative(result.location);
+					newContext.module.__dir = tmp.slice(0,tmp.length-1).join('/');
+					newContext.module.__path = result.location;
 					compile(newContext, result);
 					modules[pkg] = newContext.exports;
 				} else {
