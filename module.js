@@ -90,7 +90,6 @@
 				
 				if(document.body) { callback(); }
 				else { window.addEventListener('load', callback, false); }
-				debugger;
 				throw new Error("forcing halt on load of " + args.location);
 			}
 			throw e;
