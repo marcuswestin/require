@@ -243,7 +243,6 @@
 					var tmp = result.location.split('/');
 					newContext.module.__dir = makeRelative(tmp.slice(0,tmp.length-1).join('/'));
 					newContext.module.__path = makeRelative(result.location);
-					newContext.module.__env = module.__env;
 					compile(newContext, result);
 					modules[pkg] = newContext.exports;
 				} else {
