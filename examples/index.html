@@ -1,8 +1,9 @@
 <html>
 	<head>
 		<title>Examples of module.js</title>
-		<script type="text/javascript" src="../module.js">
-			module.path = ['js'];
+		<script type="text/javascript" src="../module.js"></script>
+		<script type="text/javascript">
+			module.path.push('js');
 		</script>
 	</head>
 	<body>
@@ -32,11 +33,11 @@
 	<pre>
 		<script type="text/javascript">
 		var scripts = document.getElementsByTagName('script');
-		for (var i=1; i < scripts.length - 1; i++) { // don't include this last script
+		// print out all scripts except the first two and this last one
+		for (var i=2; i < scripts.length - 1; i++) {
 			document.write(scripts[i].innerHTML + "\n");
 		}
 		</script>
 	</pre>
-	
 	</body>
 </html>

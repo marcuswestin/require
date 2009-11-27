@@ -1,11 +1,25 @@
 ;(function(){
 
+	/* Util functions
+	 ****************/
+
 	function bind(context, fn/*, args... */) {
 		var args = Array.prototype.slice.call(arguments, 2);
 		return function(){
 			return fn.apply(context, args.concat(Array.prototype.slice.call(arguments, 0)))
 		}
-	};
+	}
+
+	function logToDom() {
+		if (!logToDom.loggerDiv) { logToDom.loggerDiv = document.body.appendChild(document.createElement('div')); }
+		var logRow = logToDom.loggerDiv.appendChild(document.createElement('div'));
+		logRow.innerHTML = Array.prototype.slice.call(arguments).join(', ');
+	}
+	var log = (typeof console != 'undefined' && console.log) ? console.log : logToDom;
+
+
+	/* Environment
+	 *************/
 
 	if(typeof exports == 'undefined') {
 		var module = window.module = bind(this, _moduleImport, window, '');
@@ -13,29 +27,8 @@
 		var module = GLOBAL.module = bind(this, _moduleImport, GLOBAL, '');
 	}
 
-	module.path = ['.'];
-	module.script_src = 'module.js';
-
-	var src;
-	(function(){
-		try {
-			var scripts = document.getElementsByTagName('script');
-			for (var i = 0, script; script = scripts[i]; ++i) {
-				if ((script.src == module.script_src) || 
-						(script.src.slice(script.src.length-module.script_src.length) == module.script_src)) {
-					var match = script.innerHTML.match(/module\.path\s*=\s*\[(.*)\]/);
-					if (match) {
-						module.path = eval(match[0])
-					}
-					src = makeAbsoluteURL(script.src, window.location);
-			    }
-			}
-		} catch(e) {}
-	})();
-	
-	var segments = src.split('/');
-	var cwd = segments.slice(0,segments.length-2).join('/');
-	if (cwd) { module.path.push(cwd); } else { cwd = '.'; };
+	module.path = ['.']; // this can be overwritten
+	cwd = '.';
 	
 	if(typeof eval('(function(){})') == 'undefined') {
 		eval = function(src) {
@@ -48,25 +41,8 @@
 		}
 	}
 
-	function browser_getLog() {
-		if (typeof console != 'undefined' && console.log) {
-			return console.log;
-		} else {
-			return browser_oldLog;
-		}
-	}
-
-	function browser_oldLog() {
-		var d = document.createElement('div');
-		document.body.appendChild(d);
-		out = []
-		for (var i = 0, item; (item = arguments[i]) || i < arguments.length; ++i) {
-			out.push(item.toString());
-		}
-		d.innerHTML = out.join(", ");
-	}
-
-	var log = browser_getLog();
+	/* Code fetching and processing functions
+	 ****************************************/
 
 	var compile = function(context, args) {
 		var code = "(function(_){with(_){delete _;(function(){"
@@ -115,7 +91,7 @@
 			: null;
 	}
 	
-	var modulePathCache = { module: cwd };
+	var modulePathCache = {};
 	function getModulePathPossibilities(pathString) {
 		var segments = pathString.split('.')
 		var modPath = segments.join('/');
@@ -214,6 +190,8 @@
 		return pkg;
 	}
 	
+	/* the actual module function object
+	 ***********************************/
 	function _moduleImport(context, path, what) {
 		// parse the what statement
 		var match, imports = [];
