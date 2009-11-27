@@ -13,26 +13,26 @@
 		var module = GLOBAL.module = bind(this, _moduleImport, GLOBAL, '');
 	}
 
-	module.path = ['js'];
+	module.path = ['.'];
 	module.script_src = 'module.js';
 
-	var modulePathCache = {}
-	function getModulePathPossibilities(pathString) {
-		var segments = pathString.split('.')
-		var modPath = segments.join('/');
-		var out;
-		if (segments[0] in modulePathCache) {
-			out = [[modulePathCache[segments[0]] + '/' + modPath + '.js', null]];
-		} else {
-			out = [];
-			for (var i = 0, path; path = module.path[i]; ++i) {
-				out.push([path + '/' + modPath + '.js', path]);
+	var src;
+	(function(){
+		try {
+			var scripts = document.getElementsByTagName('script');
+			for (var i = 0, script; script = scripts[i]; ++i) {
+				if ((script.src == module.script_src) || 
+						(script.src.slice(script.src.length-module.script_src.length) == module.script_src)) {
+					var match = script.innerHTML.match(/module\.path\s*=\s*\[(.*)\]/);
+					if (match) {
+						module.path = eval(match[0])
+					}
+					src = makeAbsoluteURL(script.src, window.location);
+			    }
 			}
-		}
-		return out;
-	}
+		} catch(e) {}
+	})();
 	
-	var src = browser_findScript();
 	var segments = src.split('/');
 	var cwd = segments.slice(0,segments.length-2).join('/');
 	if (cwd) { module.path.push(cwd); } else { cwd = '.'; };
@@ -46,20 +46,6 @@
 				delete module.__f;
 			}
 		}
-	}
-
-	modulePathCache.module = cwd;
-
-	function browser_findScript() {
-		try {
-			var scripts = document.getElementsByTagName('script');
-			for (var i = 0, script; script = scripts[i]; ++i) {
-				if ((script.src == module.script_src) || 
-						(script.src.slice(script.src.length-module.script_src.length) == module.script_src)) {
-						return makeAbsoluteURL(script.src, window.location);
-			    }
-			}
-		} catch(e) {}
 	}
 
 	function browser_getLog() {
@@ -130,6 +116,22 @@
 			: null;
 	}
 	
+	var modulePathCache = { module: cwd };
+	function getModulePathPossibilities(pathString) {
+		var segments = pathString.split('.')
+		var modPath = segments.join('/');
+		var out;
+		if (segments[0] in modulePathCache) {
+			out = [[modulePathCache[segments[0]] + '/' + modPath + '.js', null]];
+		} else {
+			out = [];
+			for (var i = 0, path; path = module.path[i]; ++i) {
+				out.push([path + '/' + modPath + '.js', path]);
+			}
+		}
+		return out;
+	}
+
 	var getModuleSourceAndPath = function(pathString) {
 		var baseMod = pathString.split('.')[0];
 		var paths = getModulePathPossibilities(pathString);
