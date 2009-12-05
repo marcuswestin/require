@@ -1,0 +1,1 @@
+* Using external, the imported item has to be globally defined. E.g. module('external lib.QEvent import QEvent'); won't make QEvent defined unless there is a window.QEvent = {} in QEvent.js
