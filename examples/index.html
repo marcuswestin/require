@@ -1,44 +1,11 @@
 <html>
 	<head>
-		<title>Examples of module.js</title>
-		<script type="text/javascript" src="../module.js"></script>
-		<script type="text/javascript">
-			// module.path.push('js');
-			module.path.unshift('js');
-		</script>
+		<title>require.js</title>
+		<script type="text/javascript" src="../require.js"></script>
 	</head>
 	<body>
 		<script type="text/javascript">
-			// Import the function greet from the file helloworld
-			module('from helloworld import greet');
-			greet('js hacker');
+			require('examples/js/chain');
 		</script>
-	
-		<script type="text/javascript">
-			// Import the package tests.equality
-			module('import tests.equality');
-			tests.equality.runTests();
-		</script>
-	
-		<script type="text/javascript">
-			// Import the class Person
-			// Importing a class sets the imported to be the "exports.Person" object in the file "Person.js"
-			module('import class Person');
-			var marcus = new Person('Marcus', 24);
-			var plato = new Person('Plato', 2437);
-			var agentX = new Person();
-			marcus.greet(plato);
-			plato.greet(agentX);
-		</script>
-
-		<pre>
-			<script type="text/javascript">
-			var scripts = document.getElementsByTagName('script');
-			// print out all scripts except the first two and this last one
-			for (var i=2; i < scripts.length - 1; i++) {
-				document.write(scripts[i].innerHTML + "\n");
-			}
-			</script>
-		</pre>
 	</body>
 </html>
