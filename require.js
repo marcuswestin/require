@@ -7,27 +7,34 @@
 		if (require.__pkgs[path.absolute]) { return require.__pkgs[path.absolute]; }
 		require.__pkgs[path.absolute] = {};
 		
-		var xhr = new XHR()
-		xhr.open('GET', path.absolute, false);
-		xhr.send(null);
-		
-		if (xhr.status == 404 || xhr.status == -1100) { // -1100 for safari file://
-			throw new Error("File not found: " + path.absolute);
-		}
-		
+		var code = require.get(path.absolute)
+
 		// store current execution state
 		var currentPackage = require.__currentPkg;
 		var currentCwd = require.__cwd;
 		// prepare execution state and eval code
 		require.__currentPkg = require.__pkgs[path.absolute];
 		require.__cwd = path.cwd;
-		var code = '(function(){ var exports = require.__currentPkg; ' + xhr.responseText + ' })()';
+		var code = '(function(){ var exports = require.__currentPkg; ' + code + ' })()';
 		eval(code, path.absolute);
 		// restore execution state
 		require.__currentPkg = currentPackage;
 		require.__cwd = currentCwd;
 		
 		return require.__pkgs[path.absolute];
+	}
+	
+	require.get = function(path) {
+		var xhr = new XHR()
+		xhr.open('GET', path, false);
+		xhr.send(null);
+		
+		if (xhr.status == 404 || xhr.status == -1100) { // -1100 for safari file://
+			debugger
+			throw new Error("File not found: " + path);
+		}
+		
+		return xhr.responseText;
 	}
 	
 	function resolvePath(requiredPath) {
@@ -47,7 +54,7 @@
 		}
 		
 		var pathString = targetPath.join('/');
-		return { cwd: pathString, absolute: pathString + '/' + requiredPath + '.js' }
+		return { cwd: pathString, absolute: pathString + '/' + requiredPath[0] + '.js' }
 	}
 	
 	var pathRegex = /(https?:\/\/[^\/]*)?(.*\/)?require\.js$/;
