@@ -1,7 +1,31 @@
 if (typeof require == 'undefined') (function() {
 	var XHR = window.XMLHttpRequest || function() { return new ActiveXObject("Msxml2.XMLHTTP"); },
-		log = window.console && console.log,
-		importedModules = {}
+		log = window.console && console.log
+  	
+  	// Regex to split a filename into [*, dir, basename, ext], posix version, from https://github.com/ry/node/blob/master/lib/path.js
+	var splitPathRegex = /^(.+\/(?!$)|\/)?((?:.+?)?(\.[^.]*)?)$/,
+		getDir = function(path) { return splitPathRegex.exec(path)[1] || '' }
+	
+	var slashDotSlashRegex = /\/\.\//g,
+		doubleSlashRegex = /\/\//g
+	var resolvePath = function(path) {
+		var pathParts = path
+				.replace(doubleSlashRegex, '')
+				.replace(slashDotSlashRegex, '/')
+				.split('/')
+		
+		var i=0
+		while (i < pathParts.length) {
+			if (pathParts[i] == '..') {
+				pathParts.splice(i - 1, 2)
+				i--
+			} else {
+				i++
+			}
+		}
+		
+		return pathParts.join('/') + '.js'
+	}
 	
 	// IE6 won't return an anonymous function from eval, so use the function constructor instead
 	var evaluate = typeof eval('(function(){})') == 'undefined'
@@ -9,6 +33,7 @@ if (typeof require == 'undefined') (function() {
 		: function(src, path) { var src = src + '\n//@ sourceURL=' + path; return eval(src) }
 	
 	var fetchFile = function(path) {
+		path = location.protocol + '//' + location.host + path
 		var xhr = new XHR()
 		try {
 			xhr.open('GET', path, false)
@@ -28,14 +53,19 @@ if (typeof require == 'undefined') (function() {
 		return xhr.responseText;
 	}
 	
-	window.require = function(module) {
-		var path = module + '.js'
-		if (importedModules[path]) { return importedModules[path] }
+	window.require = function(modulePath) {
+		var baseStack = require._base,
+			currentBase = baseStack[baseStack.length - 1] || location.pathname,
+			path = resolvePath(currentBase + modulePath)
+		
+		if (require._modules[path]) { return require._modules[path] }
+		require._base.push(getDir(path))
+		
 		var moduleCode = fetchFile(path),
 			moduleFriendlyName = path.replace(/[\/.]/g, '_')
 		
 		if (!moduleCode) {
-			log(path, 'failed to load module', module)
+			log(path, 'failed to load module', modulePath)
 			return
 		}
 		
@@ -66,7 +96,11 @@ if (typeof require == 'undefined') (function() {
 			}
 		}
 		
-		importedModules[path] = moduleObject.exports
+		require._modules[path] = moduleObject.exports
+		require._base.pop()
 		return moduleObject.exports
 	}
+	
+	require._modules = {}
+	require._base = []
 })()

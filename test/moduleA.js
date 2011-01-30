@@ -1,2 +1,2 @@
-exports.importModuleB = require('./moduleB')
-exports.importModuleC = require('./moduleC')
+exports.importModuleB = require('./subfolder/moduleB')
+exports.importModuleC = require('./subfolder/moduleC')
