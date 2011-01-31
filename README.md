@@ -4,7 +4,7 @@ browser-require.js
 Brings `require` to the browser
 -------------------------------
 
-Browser-require lets you write javascript using "require", "exports" and "module" in the browser, just as you would in node. It helps you with your dependency management, and provides a compiler to condense all your required modules into a single file for production.
+Browser-require lets you write javascript using "require", "exports" and "module" in the browser, just as you would in node. It helps you with your dependency management, and provides a compiler to condense all your required modules into a single file for production. Using browser-require, you can import utility modules you've already written for node into the browser.
 
 Example
 -------
