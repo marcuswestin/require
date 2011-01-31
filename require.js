@@ -1,14 +1,17 @@
 if (typeof require == 'undefined') (function() {
 	var XHR = window.XMLHttpRequest || function() { return new ActiveXObject("Msxml2.XMLHTTP"); },
 		log = window.console && console.log
-  	
+	
   	// Regex to split a filename into [*, dir, basename, ext], posix version, from https://github.com/ry/node/blob/master/lib/path.js
 	var splitPathRegex = /^(.+\/(?!$)|\/)?((?:.+?)?(\.[^.]*)?)$/,
 		getDir = function(path) { return splitPathRegex.exec(path)[1] || '' }
 	
 	var slashDotSlashRegex = /\/\.\//g,
 		doubleSlashRegex = /\/\//g
-	var resolvePath = function(path) {
+	var resolvePath = function(base, path) {
+		if (!path.match(/^\//)) {
+			path = base + path
+		}
 		var pathParts = path
 				.replace(doubleSlashRegex, '')
 				.replace(slashDotSlashRegex, '/')
@@ -53,10 +56,11 @@ if (typeof require == 'undefined') (function() {
 		return xhr.responseText;
 	}
 	
+	var pageBasePath = location.pathname.replace(/\/[^\/]*$/, '/')
 	window.require = function(modulePath) {
 		var baseStack = require._base,
-			currentBase = baseStack[baseStack.length - 1] || location.pathname,
-			path = resolvePath(currentBase + modulePath)
+			currentBase = baseStack[baseStack.length - 1] || pageBasePath,
+			path = resolvePath(currentBase, modulePath)
 		
 		if (require._modules[path]) { return require._modules[path] }
 		require._base.push(getDir(path))
