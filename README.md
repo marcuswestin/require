@@ -34,12 +34,6 @@ Lets look at a somewhat contrived example that uses require in an html file to l
         alert(math.sum([1, 4, 8, 23, 9]))
     </script>
 
-How does it work?
------------------
-Martin Hunt built a synchronous module loading system for [js.io]. Browser-require adopts a similar technique and lots of particular details to mimic node's require functionality in the browser.
-
-When a module is required, we fetch it's javascript as a string using a synchronous XHR. The module's javascript then gets evaluated inside of a function which takes the "module" object as an argument. This provides both the closure 
-
 Compile for Production
 ----------------------
 Browser-require fetches the requested modules with a synchronous XHR. Before you deploy to production you will want to compile all the required modules into a single file:
@@ -50,6 +44,12 @@ Browser-require fetches the requested modules with a synchronous XHR. Before you
 I intend to add the ability to compile an html page with browser-require on it into a single html page with all required javascript inline.
     
     $ node compile.js path/to/index.html > compiled-app.html
+
+How does it work?
+-----------------
+Martin Hunt built a synchronous module loading system for [js.io]. Browser-require adopts a similar technique and lots of particular details to mimic node's require functionality in the browser.
+
+When a module is required, we fetch it's javascript as a string using a synchronous XHR. The module's javascript then gets evaluated inside of a function which takes the "module" object as an argument. This provides both the closure 
 
 
 [js.io]: https://github.com/mcarter/js.io/
