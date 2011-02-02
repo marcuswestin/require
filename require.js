@@ -107,4 +107,13 @@ if (typeof require == 'undefined') (function() {
 	
 	require._modules = {}
 	require._base = []
+	
+	var scripts = document.getElementsByTagName('script'),
+		browserRequireScript
+	for (var i=0, script; script = scripts[i]; i++) {
+		var appURL = script.getAttribute('main')
+		if (!appURL) { continue }
+		require(appURL)
+		break
+	}
 })()
