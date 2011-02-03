@@ -5,4 +5,6 @@ var sys = require('sys'),
 
 var file = process.argv[2]
 
-sys.puts(compiler.compileJSFile(file))
+compiler.compressJS(compiler.compileJSFile(file), function(compressedCode) {
+	sys.puts(compressedCode)
+})

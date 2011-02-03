@@ -1,12 +1,15 @@
 module.exports = {
 	compileJS: compileJS,
 	compileJSFile: compileJSFile,
+	compressJS: compressJS,
 	indentJS: indentJS
 }
 
 var fs = require('fs'),
 	sys = require('sys'),
-	path = require('path')
+	path = require('path'),
+	util = require('util'),
+	child_process = require('child_process')
 
 /* Compile a javascript file
  ***************************/
@@ -16,6 +19,27 @@ function compileJSFile(filePath) {
 
 function compileJS(code, basePath) {
 	return indentJS('var require = {}\n' + compileJSModule(code, {}, basePath))
+}
+
+function compressJS(code, callback) {
+	
+	var closureArgs = ['-jar', __dirname + '/google-closure.jar']
+	
+	var closure = child_process.spawn('java', closureArgs)
+		stdout = [],
+		stderr = []
+	closure.stdout.on('data', function(data) { stdout.push(data); });
+	closure.stderr.on('data', function(data) { stderr.push(data); });
+	closure.on('exit', function(code) {
+		if (code == 0) {
+			callback(stdout.join(''))
+		} else {
+			util.debug(stderr.join(''))
+			callback('')
+		}
+	})
+	closure.stdin.write(code)
+	closure.stdin.end()
 }
 
 /* Compile a javascript module
