@@ -57,7 +57,7 @@ function _indent(code) {
 		
 		if (line.match(/^\s*\}/)) { indentation-- }
 		result.push(_repeat('\t', indentation) + line)
-		if (line.match(/\{\s*$/)) { indentation++ }
+		if (!line.match(/^\s*\/\//) && line.match(/\{\s*$/)) { indentation++ }
 	}
 	return result.join('\n')
 }
