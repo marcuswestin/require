@@ -38,7 +38,17 @@ function compileJSModule(code, modules, pathBase) {
 			modules[modulePath] = true
 			var newPathBase = path.dirname(modulePath)
 			code = code.replace(requireStatement, [
-					'(function() {',
+					// we could replace require('path') with (function(){})(). However, if
+					// you have require('path1') require('path2'), then we end up with
+					// (function a(){})() (function b(){}()). This causes a runtime error,
+					// since it gets interpreted as an invocation of the return value of
+					// function a. Instead, insert a throwaway variable assignment, such that
+					// we get require._=(function a(){})() require._=(function b(){})(). This
+					// gets interpreted as two separate statements, which solves the problem.
+					// (an alternative faulty approach is to put a semi-colon at the end of
+					// the function invocation, but that would fail in the case of
+					// var a = require('a'), b = require('b'))
+					'require._=(function() {',
 					'	var module = require["'+modulePath+'"] = {exports:{}}, exports = module.exports',
 					'	// start module code',
 						compileJSModule(_readFile(modulePath + '.js'), modules, newPathBase),
