@@ -21,6 +21,12 @@ function compileJS(code, basePath) {
 	return indentJS('var require = {}\n' + compileJSModule(code, {}, basePath))
 }
 
+// TODO: Look into
+// provide a closure to make all variables local: code = '(function(){'+code+'})()'
+// --compilation_level [WHITESPACE_ONLY | SIMPLE_OPTIMIZATIONS | ADVANCED_OPTIMIZATIONS]
+// --compute_phase_ordering: Runs the compile job many times, then prints out the best phase ordering from this run
+// --define (--D, -D) VAL Override the value of a variable annotated @define. The format is <name>[=<val>], where <name> is the name of a @define variable and <val> is a boolean, number, or a single-quot ed string that contains no single quotes. If [=<val>] is omitted, the variable is marked true
+// --print_ast, --print_pass_graph, --print_tree
 function compressJS(code, callback) {
 	
 	var closureArgs = ['-jar', __dirname + '/google-closure.jar']
