@@ -1,6 +1,7 @@
 module.exports = {
 	compileJS: compileJS,
-	compileJSFile: compileJSFile
+	compileJSFile: compileJSFile,
+	indentJS: indentJS
 }
 
 var fs = require('fs'),
