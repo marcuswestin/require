@@ -1,6 +1,3 @@
-v0.1.2
-+ Support index.js - if a module is not found at location, look for it at location/index.js
-
 v0.1.1
 + Support the "root" configuration parameter
 + Fix: consecutive slashes get replaced with a single slash as opposed to no slash
