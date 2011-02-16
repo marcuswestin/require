@@ -40,18 +40,21 @@ if (typeof require == 'undefined') (function() {
 			var possiblePath = possiblePaths[0],
 				url = location.protocol + '//' + location.host + possiblePath,
 				xhr = new XHR()
-			try {
-				xhr.open('GET', url, false)
-				xhr.send(null)
-			} catch(e) {
-				log(url, 'fetchFile open/send error:', e)
-			}
-			
-			if (xhr.status == -1100) { // safari file://
-				// XXX: We have no way to tell in opera if a file exists and is empty, or is 404
-				log(url, 'fetchFile xhr.status error:', xhr.status)
-			} else if (xhr.status < 400) {
-				return xhr.responseText;
+			if (!require._attempted[url]) {
+				require._attempted[url] = true
+				try {
+					xhr.open('GET', url, false)
+					xhr.send(null)
+				} catch(e) {
+					log(url, 'fetchFile open/send error:', e)
+				}
+
+				if (xhr.status == -1100) { // safari file://
+					// XXX: We have no way to tell in opera if a file exists and is empty, or is 404
+					log(url, 'fetchFile xhr.status error:', xhr.status)
+				} else if (xhr.status < 400) {
+					return xhr.responseText;
+				}
 			}
 			possiblePaths.shift()
 		}
@@ -110,6 +113,7 @@ if (typeof require == 'undefined') (function() {
 	}
 	
 	require._modules = {}
+	require._attempted = {}
 	require._base = []
 	require._root = null
 	
