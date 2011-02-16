@@ -13,7 +13,7 @@ if (typeof require == 'undefined') (function() {
 			path = base + path
 		}
 		var pathParts = path
-				.replace(doubleSlashRegex, '')
+				.replace(doubleSlashRegex, '/')
 				.replace(slashDotSlashRegex, '/')
 				.split('/')
 		
