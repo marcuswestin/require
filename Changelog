@@ -1,2 +1,6 @@
+v0.1.1
++ Support the "root" configuration parameter
++ Fix: consecutive slashes get replaced with a single slash as opposed to no slash
+
 v0.1.0
 First version, implements node's require() statement for the browser
