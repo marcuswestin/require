@@ -9,9 +9,8 @@ if (typeof require == 'undefined') (function() {
 	var slashDotSlashRegex = /\/\.\//g,
 		doubleSlashRegex = /\/\//g
 	var resolvePath = function(base, path) {
-		if (!path.match(/^\//)) {
-			path = base + path
-		}
+		if (path[0] == '/') { path = require._root + path }
+		else { path = base + path }
 		var pathParts = path
 				.replace(doubleSlashRegex, '/')
 				.replace(slashDotSlashRegex, '/')
@@ -59,7 +58,7 @@ if (typeof require == 'undefined') (function() {
 	var pageBasePath = location.pathname.replace(/\/[^\/]*$/, '/')
 	window.require = function(modulePath) {
 		var baseStack = require._base,
-			currentBase = baseStack[baseStack.length - 1] || pageBasePath,
+			currentBase = baseStack[baseStack.length - 1] || require._root || pageBasePath,
 			path = resolvePath(currentBase, modulePath)
 		
 		if (require._modules[path]) { return require._modules[path] }
@@ -107,8 +106,11 @@ if (typeof require == 'undefined') (function() {
 	
 	require._modules = {}
 	require._base = []
+	require._root = null
 	
-	var browserRequireScript = document.getElementById('browser-require')
-	var appURL = browserRequireScript && browserRequireScript.getAttribute('main')
+	var browserRequireScript = document.getElementById('browser-require'),
+		appURL = browserRequireScript && browserRequireScript.getAttribute('main'),
+		rootURL = browserRequireScript && browserRequireScript.getAttribute('root')
+	if (rootURL) { require._root = rootURL }
 	if (appURL) { require(appURL) }
 })()
