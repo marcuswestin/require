@@ -68,7 +68,7 @@ if (typeof require == 'undefined') (function() {
 			possiblePaths = resolvePath(currentBase, modulePath)
 		
 		for (var i=0, path; path = possiblePaths[i]; i++) {
-			if (require._modules[path]) { return require._modules[path] }
+			if (require._modules[path]) { return require._modules[path].exports }
 		}
 		
 		var moduleCode = fetchFile(possiblePaths),
@@ -88,10 +88,10 @@ if (typeof require == 'undefined') (function() {
 			throw e
 		}
 
-			// the "module" object in a node module
-		var moduleObject = { exports: {} }
+		// the "module" object in a node module
+		require._modules[foundPath] = { exports: {} }
 		try {
-			importerFunction(moduleObject)
+			importerFunction(require._modules[foundPath])
 		} catch(e) {
 			if(e.type == 'syntax_error') {
 				log(foundPath, 'Syntax error while importing module', e)
@@ -107,9 +107,8 @@ if (typeof require == 'undefined') (function() {
 			}
 		}
 		
-		require._modules[foundPath] = moduleObject.exports
 		require._base.pop()
-		return moduleObject.exports
+		return require._modules[foundPath].exports
 	}
 	
 	require._modules = {}
