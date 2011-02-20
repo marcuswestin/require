@@ -1,3 +1,6 @@
+v0.1.5
++ Allow for a file inside of a folder to import the folder's index file with require('./')
+
 v0.1.4
 + Allow modules with circular dependencies to reference each other
 
