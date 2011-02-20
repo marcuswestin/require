@@ -7,13 +7,15 @@ if (typeof require == 'undefined') (function() {
 		getDir = function(path) { return splitPathRegex.exec(path)[1] || '' }
 	
 	var slashDotSlashRegex = /\/\.\//g,
-		doubleSlashRegex = /\/\//g
+		doubleSlashRegex = /\/\//g,
+		endInSlashRegex = /\/$/g
 	var resolvePath = function(base, path) {
 		if (path[0] == '/') { path = require._root + path }
 		else { path = base + path }
 		var pathParts = path
 				.replace(doubleSlashRegex, '/')
 				.replace(slashDotSlashRegex, '/')
+				.replace(endInSlashRegex, '')
 				.split('/')
 		
 		var i=0
