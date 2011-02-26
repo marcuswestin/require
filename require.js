@@ -10,15 +10,13 @@ if (typeof require == 'undefined') (function() {
 		var slashDotSlashRegex = /\/\.\//g,
 			doubleSlashRegex = /\/\//g,
 			endInSlashRegex = /\/$/g
-		var resolvePath = function(base, path) {
-			if (path[0] == '/') { path = require._root + path }
-			else { path = base + path }
+		var resolvePath = function(path) {
 			var pathParts = path
 					.replace(doubleSlashRegex, '/')
 					.replace(slashDotSlashRegex, '/')
 					.replace(endInSlashRegex, '')
 					.split('/')
-
+			
 			var i=0
 			while (i < pathParts.length) {
 				if (pathParts[i] == '..') {
@@ -59,11 +57,10 @@ if (typeof require == 'undefined') (function() {
 			return null
 		}
 
-		var pageBasePath = location.pathname.replace(/\/[^\/]*$/, '/')
 		window.require = function(modulePath) {
 			var baseStack = require._base,
-				currentBase = baseStack[baseStack.length - 1] || require._root || pageBasePath,
-				possiblePaths = resolvePath(currentBase, modulePath)
+				currentBase = baseStack[baseStack.length - 1],
+				possiblePaths = resolvePath(currentBase + modulePath)
 
 			for (var i=0, path; path = possiblePaths[i]; i++) {
 				if (require._modules[path]) { return require._modules[path].exports }
@@ -111,8 +108,7 @@ if (typeof require == 'undefined') (function() {
 
 		require._modules = {}
 		require._attempted = {}
-		require._base = []
-		require._root = null
+		require._base = [location.pathname.replace(/\/[^\/]*$/, '/')]
 	})()
 	
 	// evaluate must not have access to the local scope of require, or else imported modules will
@@ -125,10 +121,7 @@ if (typeof require == 'undefined') (function() {
 	
 	void(function(){
 		var browserRequireScript = document.getElementById('browser-require'),
-			appURL = browserRequireScript && browserRequireScript.getAttribute('main'),
-			rootURL = browserRequireScript && browserRequireScript.getAttribute('root')
-		if (rootURL) { require._root = rootURL }
+			appURL = browserRequireScript && browserRequireScript.getAttribute('main')
 		if (appURL) { require(appURL) }
 	})()
 })()
-
