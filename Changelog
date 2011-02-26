@@ -1,4 +1,4 @@
-intended v0.1.6
+v0.1.6
 + Fix: Variables declared inside of require.js are no longer visible to imported modules
 + Remove the "root" configuration parameter added in v0.1.1. You cannot modify the root in node.
 
