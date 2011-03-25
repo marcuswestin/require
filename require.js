@@ -1,5 +1,5 @@
-if (typeof require == 'undefined') (function() {
-	(function(){
+void(function() {
+	var initRequire = function(){
 		var XHR = window.XMLHttpRequest || function() { return new ActiveXObject("Msxml2.XMLHTTP"); },
 			log = window.console && console.log
 
@@ -105,28 +105,33 @@ if (typeof require == 'undefined') (function() {
 			require._base.pop()
 			return require._modules[foundPath].exports
 		}
+	}
 
+	if (typeof module != 'undefined' && module.exports) {
+		var requireFn = arguments.callee
+		module.exports = { toString: function(){ return 'void(' + requireFn + ')()'} }
+	} else if (typeof window != 'undefined' && !window.require) {
+		initRequire()
 		require._modules = {}
 		require._attempted = {}
 		require._base = [location.pathname.replace(/\/[^\/]*$/, '/')]
-	})()
+		
+		// evaluate must not have access to the local scope of require, or else imported modules will
+		// see require's local variables as well.
+		// IE6 won't return an anonymous function from eval, so use the function constructor instead
+		require._evaluate = typeof eval('(function(){})') == 'undefined'
+			? function(src, path) { return (new Function('return ' + src))() }
+			: function(src, path) { var src = src + '\n//@ sourceURL=' + path; return eval(src) }
 	
-	// evaluate must not have access to the local scope of require, or else imported modules will
-	// see require's local variables as well.
-	
-	// IE6 won't return an anonymous function from eval, so use the function constructor instead
-	require._evaluate = typeof eval('(function(){})') == 'undefined'
-		? function(src, path) { return (new Function('return ' + src))() }
-		: function(src, path) { var src = src + '\n//@ sourceURL=' + path; return eval(src) }
-	
-	void(function(){
-		var scripts = document.getElementsByTagName('script'),
-			requireSrcRegex = /\/require\.js$/
-		for (var i=0, script; script = scripts[i]; i++) {
-			if (!script.src.match(requireSrcRegex)) { continue }
-			var appURL = script.getAttribute('main')
-			if (appURL) { require(appURL) }
-			return
-		}
-	})()
+		void(function(){
+			var scripts = document.getElementsByTagName('script'),
+				requireSrcRegex = /\/require\.js$/
+			for (var i=0, script; script = scripts[i]; i++) {
+				if (!script.src.match(requireSrcRegex)) { continue }
+				var appURL = script.getAttribute('main')
+				if (appURL) { require(appURL) }
+				return
+			}
+		})()
+	}
 })()
