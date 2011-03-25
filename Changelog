@@ -1,3 +1,6 @@
+v0.1.10
++ Allow for a node server to server require using require('require').toString()
+
 v0.1.9
 + It's no longer required to add id="browser-require" to a script tag in order to load the main module automatically
 
