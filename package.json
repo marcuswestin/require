@@ -1,7 +1,21 @@
 {
-	"name": "browser-require",
-	"description": "javascript module management! brings node's require statement to the browser",
-	"version": "0.1.7",
-	"homepage": "https://github.com/marcuswestin/browser-require",
-	"main": "require.js"
+  "name": "browser-require",
+  "description": "javascript module management! brings node's require statement to the browser",
+  "version": "0.1.7",
+  "homepage": "https://github.com/marcuswestin/browser-require",
+  "main": "require.js",
+  "engines": {
+    "node": "*"
+  },
+  "directories": {
+    "lib": "."
+  },
+  "files": [
+    ""
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/marcuswestin/browser-require.git"
+  },
+  "author": "Marcus Westin <narcvs@gmail.com> (http://marcuswest.in)"
 }
