@@ -120,8 +120,13 @@ if (typeof require == 'undefined') (function() {
 		: function(src, path) { var src = src + '\n//@ sourceURL=' + path; return eval(src) }
 	
 	void(function(){
-		var browserRequireScript = document.getElementById('browser-require'),
-			appURL = browserRequireScript && browserRequireScript.getAttribute('main')
-		if (appURL) { require(appURL) }
+		var scripts = document.getElementsByTagName('script'),
+			requireSrcRegex = /\/require\.js$/
+		for (var i=0, script; script = scripts[i]; i++) {
+			if (!script.src.match(requireSrcRegex)) { continue }
+			var appURL = script.getAttribute('main')
+			if (appURL) { require(appURL) }
+			return
+		}
 	})()
 })()
