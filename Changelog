@@ -1,4 +1,4 @@
-indented v0.1.11
+v0.1.11
 + Fix: compiler now resolves module/index.js paths correctly
 
 v0.1.10
