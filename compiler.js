@@ -60,8 +60,9 @@ function compileJSModule(code, modules, pathBase) {
 	for (var i=0, requireStatement; requireStatement = requireStatements[i]; i++) {
 		
 		var rawModulePath = requireStatement.match(pathnameGroupingRegex)[1],
-			modulePath = path.join(pathBase, rawModulePath)
-		
+			searchPath = path.join(pathBase, rawModulePath),
+			modulePath = findTruePath(searchPath, modules)
+
 		if (modules[modulePath]) {
 			code = code.replace(requireStatement, 'require["'+modulePath+'"].exports')
 		} else {
@@ -90,6 +91,16 @@ function compileJSModule(code, modules, pathBase) {
 	}
 	return code
 }
+
+function findTruePath(modulePath, modules) {
+	function tryPath(p) {
+		return (!!modules[p] || path.existsSync(p+'.js'))
+	}
+	if (tryPath(modulePath)) { return modulePath }
+	if (tryPath(modulePath + 'index')) { return modulePath + 'index' }
+	throw "Could not resolve " + modulePath
+}
+
 
 function indentJS(code) {
 	var lines = code.replace(/\t/g, '').split('\n'),
