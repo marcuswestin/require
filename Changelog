@@ -1,3 +1,6 @@
+intended v0.1.12
++ Module pathnames are compiled as absolute - they should instead originate at the least common directory
+
 v0.1.11
 + Fix: compiler now resolves module/index.js paths correctly
 
