@@ -1,10 +1,10 @@
-browser-require.js
-==================
+require
+=======
 
 Brings `require` to the browser
 -------------------------------
 
-Browser-require lets you write javascript using "require", "exports" and "module" in the browser, just as you would in node. It helps you with your dependency management, and provides a compiler to condense all your required modules into a single file for production. Using browser-require, you can import utility modules you've already written for node into the browser.
+Browser-require lets you write javascript using "require", "exports" and "module" in the browser, just as you would in node. It helps you with your dependency management, and provides a compiler to condense all your required modules into a single file for production. Using require, you can import utility modules you've already written for node into the browser.
 
 Example
 -------
@@ -28,7 +28,7 @@ Lets look at a somewhat contrived example that uses require in an html file to l
     }
     
     // in index.html
-    <script src="browser-require/require.js"></script>
+    <script src="require/require.js"></script>
     <script>
         var math = require('./lib/math')
         alert(math.sum([1, 4, 8, 23, 9]))
@@ -36,12 +36,12 @@ Lets look at a somewhat contrived example that uses require in an html file to l
 
 Compile for Production
 ----------------------
-Browser-require fetches the requested modules with a synchronous XHR. Before you deploy to production you will want to compile all the required modules into a single file:
+require fetches the requested modules with a synchronous XHR. Before you deploy to production you will want to compile all the required modules into a single file:
 
-    $ cd browser-require
+    $ cd require
     $ node compile.js path/to/app.js > compiled-app.js
 
-I intend to add the ability to compile an html page with browser-require on it into a single html page with all required javascript inline.
+I intend to add the ability to compile an html page with require on it into a single html page with all required javascript inline.
     
     $ node compile.js path/to/index.html > compiled-app.html
 
