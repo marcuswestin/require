@@ -100,7 +100,7 @@ function findTruePath(modulePath, modules) {
 	if (tryPath(modulePath)) { return modulePath }
 	if (tryPath(modulePath + '/index')) { return modulePath + '/index' }
 	if (tryPath(modulePath + 'index')) { return modulePath + 'index' }
-	throw "Could not resolve " + modulePath
+	throw 'require compiler: could not resolve "' + modulePath + '"'
 }
 
 
