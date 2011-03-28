@@ -1,4 +1,4 @@
-var browserRequire = require('../require')
+var compiler = require('../compiler')
 
-console.log(browserRequire.toString())
+compiler.compileJS('require("socket.io/support/socket.io-client/socket.io")')
 
