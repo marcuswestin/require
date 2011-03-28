@@ -60,7 +60,8 @@ function compileJSModule(code, modules, pathBase) {
 	for (var i=0, requireStatement; requireStatement = requireStatements[i]; i++) {
 		
 		var rawModulePath = requireStatement.match(pathnameGroupingRegex)[1],
-			searchPath = path.join(pathBase, rawModulePath),
+			isRelative = (rawModulePath[0] == '.'),
+			searchPath = isRelative ? path.join(pathBase, rawModulePath) : (require.resolve(rawModulePath) || '').replace(/\.js$/, ''), // use node's resolution system is it's an installed package, e.g. require('socket.io/support/clients/socket.io')
 			modulePath = findTruePath(searchPath, modules)
 
 		if (modules[modulePath]) {
@@ -97,6 +98,7 @@ function findTruePath(modulePath, modules) {
 		return (!!modules[p] || path.existsSync(p+'.js'))
 	}
 	if (tryPath(modulePath)) { return modulePath }
+	if (tryPath(modulePath + '/index')) { return modulePath + '/index' }
 	if (tryPath(modulePath + 'index')) { return modulePath + 'index' }
 	throw "Could not resolve " + modulePath
 }

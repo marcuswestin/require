@@ -1,5 +1,7 @@
 intended v0.1.12
 + Module pathnames are compiled as absolute - they should instead originate at the least common directory
++ Create a require server for development that manages files with require statements for development
++ Normalize the path resolution code between require.js and compiler.js, and compile the full require.js using the compiler
 
 v0.1.11
 + Fix: compiler now resolves module/index.js paths correctly
