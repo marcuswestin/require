@@ -1,6 +1,8 @@
 TODO
-+ Create a require server for development that manages files with require statements for development
 + Normalize the path resolution code between require.js and compiler.js, and compile the full require.js using the compiler
+
+v0.2.1
++ A development server that serves requires files in dev mode
 
 v0.2.0
 + latest version published on npm
