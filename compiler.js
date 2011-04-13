@@ -1,8 +1,12 @@
 module.exports = {
-	compileJS: compileJS,
-	compileJSFile: compileJSFile,
-	compressJS: compressJS,
-	indentJS: indentJS
+	compile: compileJS,
+	compileFile: compileJSFile,
+	compress: compressJS,
+	indent: indentJS,
+	compileJS: compileJS, // deprecated
+	compileJSFile: compileJSFile, // deprecated
+	compressJS: compressJS, // deprecated
+	indentJS: indentJS // deprecated
 }
 
 var fs = require('fs'),
