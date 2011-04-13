@@ -1,9 +1,9 @@
 {
   "name": "require",
   "description": "javascript module management! brings node's require statement to the browser",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "homepage": "https://github.com/marcuswestin/browser-require",
-  "main": "./server",
+  "main": "./require",
   "engines": {
     "node": "*"
   },
@@ -14,7 +14,5 @@
   "author": "Marcus Westin <narcvs@gmail.com> (http://marcuswest.in)",
   "dependencies": {},
   "devDependencies": {},
-  "directories": {
-    "lib": "lib"
-  }
+  "directories": {}
 }
