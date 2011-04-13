@@ -7,6 +7,7 @@ intended v0.1.13
 + better file layout - bin/ lib/
 + created bin/compile to compile files
 + created bin/compress to compile and compress files
++ improved readability of compiled files by flattening the require hierarchy
 
 v0.1.12
 + Support module path names in the compiler, e.g. require('require/compiler')
