@@ -1,5 +1,4 @@
 TODO
-+ Module pathnames are compiled as absolute - they should instead originate at the least common directory
 + Create a require server for development that manages files with require statements for development
 + Normalize the path resolution code between require.js and compiler.js, and compile the full require.js using the compiler
 
@@ -8,6 +7,7 @@ intended v0.1.13
 + created bin/compile to compile files
 + created bin/compress to compile and compress files
 + improved readability of compiled files by flattening the require hierarchy
++ replace module names with short names, e.g. "_1", "_2", etc
 
 v0.1.12
 + Support module path names in the compiler, e.g. require('require/compiler')
