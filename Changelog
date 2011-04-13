@@ -2,7 +2,7 @@ TODO
 + Create a require server for development that manages files with require statements for development
 + Normalize the path resolution code between require.js and compiler.js, and compile the full require.js using the compiler
 
-intended v0.1.13
+v0.1.13
 + better file layout - bin/ lib/
 + created bin/compile to compile files
 + created bin/compress to compile and compress files
