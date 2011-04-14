@@ -1,7 +1,7 @@
 {
   "name": "require",
   "description": "javascript module management! brings node's require statement to the browser",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "homepage": "https://github.com/marcuswestin/browser-require",
   "main": "./require",
   "engines": {
