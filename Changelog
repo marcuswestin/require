@@ -1,6 +1,9 @@
 TODO
 + Normalize the path resolution code between require.js and compiler.js, and compile the full require.js using the compiler
 
+v0.2.5
++ Fix compilation order for __main__
+
 v0.2.1
 + A development server that serves requires files in dev mode
 

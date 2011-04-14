@@ -2,6 +2,7 @@ module.exports = {
 	compile: compileJS,
 	compileFile: compileJSFile,
 	compress: compressJS,
+	compressFile: compressFile,
 	indent: indentJS,
 	compileJS: compileJS, // deprecated
 	compileJSFile: compileJSFile, // deprecated
@@ -27,6 +28,9 @@ function compileJS(code, basePath) {
 
 /* Compress/minify with google closure
  *************************************/
+function compressFile(filePath, callback) {
+	compressJS(_readFile(filePath), callback)
+}
 // TODO: Look into
 // provide a closure to make all variables local: code = '(function(){'+code+'})()'
 // --compilation_level [WHITESPACE_ONLY | SIMPLE_OPTIMIZATIONS | ADVANCED_OPTIMIZATIONS]
@@ -95,10 +99,11 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 		code = code.replace(requireStatement, 'require["' + subModulePath + '"].exports')
 
 		if (!modules[subModulePath]) {
-			modules.push(subModulePath)
+			modules[subModulePath] = true
 			var newPathBase = path.dirname(subModulePath),
 				newModuleCode = _readFile(subModulePath + '.js')
 			_replaceRequireStatements(subModulePath, newModuleCode, modules, newPathBase)
+			modules.push(subModulePath)
 		}
 	}
 
@@ -106,16 +111,22 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 }
 
 var _concatModules = function(modules) {
-	var moduleDefinitions = []
-	for (var i=0, modulePath; modulePath = modules[i]; i++) {
-		moduleDefinitions.unshift([
-				';(function() {',
-				'	// ' + modulePath,
-				'	var module = require["'+modulePath+'"] = {exports:{}}, exports = module.exports',
-					modules[modulePath],
-				'})()'
-			].join('\n'))
+	var code = function(modulePath) {
+		return [
+			';(function() {',
+			'	// ' + modulePath,
+			'	var module = require["'+modulePath+'"] = {exports:{}}, exports = module.exports',
+				modules[modulePath],
+			'})()'
+		].join('\n')
 	}
+
+	var moduleDefinitions = []
+	for (var i=1, modulePath; modulePath = modules[i]; i++) {
+		moduleDefinitions.push(code(modulePath))
+	}
+	moduleDefinitions.push(code(modules[0])) // __main__
+
 	return moduleDefinitions.join('\n\n')
 }
 
