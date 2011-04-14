@@ -29,7 +29,7 @@ void(function() {
 			}
 
 			var possiblesBase = pathParts.join('/')
-			return [possiblesBase, possiblesBase + '/../../' + searchPath]
+			return [possiblesBase + '/../../' + searchPath, possiblesBase]
 		}
 
 		var fetchFile = function(possiblePaths) {
