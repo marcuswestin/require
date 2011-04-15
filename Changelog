@@ -1,6 +1,9 @@
 TODO
 + Normalize the path resolution code between require.js and compiler.js, and compile the full require.js using the compiler
 
+intended v0.2.8
++ Don't leave require.paths modified after require.resolve. Add paths right before they're needed, and remove paths after.
+
 v0.2.7
 + Improve path resolution
 

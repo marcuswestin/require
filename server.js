@@ -13,14 +13,20 @@ function setBase(base) {
 	_baseRegex = new RegExp('^' + _base.replace(/\//g, '\\/'))
 }
 
-function addPath(path) {
-	// TODO would be nice not to modify the global require path here
-	require.paths.unshift(path)
+var _paths = []
+function addPath(newPath) {
+	_paths.push(path.normalize(newPath))
 }
 
 function handleRequest(req, res) {
-	var path = req.url.substr(_base.length),
-		onError = function() { res.writeHead(404); res.end('Could not find ' + path) }
+	var path = req.url.substr(_base.length)
+
+	_buildPaths()
+	var onError = function() {
+		_cleanPaths()
+		res.writeHead(404)
+		res.end('Could not find ' + path)
+	}
 
 	if (!req.url.match(_baseRegex)) { return onError() }
 
@@ -29,7 +35,18 @@ function handleRequest(req, res) {
 
 	fs.readFile(path, function(err, code) {
 		if (err) { return onError() }
+		_cleanPaths()
 		res.writeHead(200, { 'Content-Type': 'application/javascript' })
 		res.end(code)
 	})
+}
+
+var _buildPaths = function() {
+	for (var i=0; i<_paths.length; i++) {
+		require.paths.unshift(_paths[i])
+	}
+}
+
+var _cleanPaths = function() {
+	require.paths.splice(0, _paths.length)
 }
