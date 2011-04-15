@@ -15,7 +15,7 @@ function setBase(base) {
 
 var _paths = []
 function addPath(newPath) {
-	_paths.push(path.normalize(newPath))
+	_paths.push(newPath)
 }
 
 function handleRequest(req, res) {
