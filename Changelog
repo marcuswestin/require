@@ -1,6 +1,9 @@
 TODO
 + Normalize the path resolution code between require.js and compiler.js, and compile the full require.js using the compiler
 
+v0.2.7
++ Improve path resolution
+
 v0.2.6
 + Improve the order in which we try to load modules
 
