@@ -11,30 +11,32 @@ void(function() {
 			doubleSlashRegex = /\/\//g,
 			endInSlashRegex = /\/$/g
 		var resolvePath = function(currentBase, searchPath) {
-			var path = (searchPath[0] == '.' ? currentBase + '/' : require._base[0]) + searchPath
-			var pathParts = path
-					.replace(doubleSlashRegex, '/')
+			if (searchPath[0] != '.') { return [searchPath] }
+
+			function normalize(path) {
+				var parts = path
 					.replace(slashDotSlashRegex, '/')
 					.replace(endInSlashRegex, '')
 					.split('/')
-			
-			var i=0
-			while (i < pathParts.length) {
-				if (pathParts[i] == '..') {
-					pathParts.splice(i - 1, 2)
-					i--
-				} else {
-					i++
+				var i = 0
+				while (i < parts.length) {
+					if (parts[i] == '') {
+						parts.splice(i, 1)
+					} else if (parts[i] == '..') {
+						parts.splice(i - 2, 2)
+					} else {
+						i++
+					}
 				}
+				return parts.join('/')
 			}
 
-			var possiblesBase = pathParts.join('/')
-			return [possiblesBase + '/../../' + searchPath, possiblesBase]
+			return [normalize(getDir(currentBase) + '/' + searchPath), normalize(currentBase + '/' + searchPath)]
 		}
 
 		var fetchFile = function(possiblePaths) {
 			while (possiblePaths.length) {
-				var possiblePath = possiblePaths[0],
+				var possiblePath = require._root + possiblePaths[0],
 					url = location.protocol + '//' + location.host + possiblePath,
 					xhr = new XHR()
 				if (!require._attempted[url]) {
@@ -115,7 +117,8 @@ void(function() {
 		initRequire()
 		require._modules = {}
 		require._attempted = {}
-		require._base = [location.pathname.replace(/\/[^\/]*$/, '/')]
+		require._base = []
+		require._root = location.pathname.replace(/\/[^\/]*$/, '/')
 		
 		// evaluate must not have access to the local scope of require, or else imported modules will
 		// see require's local variables as well.
@@ -132,7 +135,7 @@ void(function() {
 				var appURL = script.getAttribute('main'),
 					requireRoot = script.getAttribute('root')
 
-				if (requireRoot) { require._base = ['/'+requireRoot] }
+				if (requireRoot) { require._root = '/'+requireRoot }
 				if (appURL) { require(appURL) }
 				return
 			}
