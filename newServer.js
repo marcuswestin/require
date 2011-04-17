@@ -10,9 +10,7 @@ var modules = {},
 
 var closureStart = '(function() {',
 	moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
-	closureEnd = '\n})()'
-
-moduleDef += 'var require = function() { return {} };'
+	closureEnd = '})()'
 
 var server = http.createServer(function(req, res) {
 	if (req.url.match(/\.js$/)) {
@@ -21,6 +19,7 @@ var server = http.createServer(function(req, res) {
 			// TODO rewrite require calls to require._["<MODULE PATH>"]
 			res.write(closureStart + moduleDef)
 			res.write(content)
+			res.write('\nrequire._["'+req.url+'"]=module.exports')
 			res.end(closureEnd)
 		})
 	} else {
@@ -29,7 +28,7 @@ var server = http.createServer(function(req, res) {
 		var deps = util.getDependencyList(modulePath),
 			base = '//' + host + ':' + port
 
-		res.write('var require = {_:{}}\n')
+		res.write('function require(){return{}}; require._={}\n')
 		for (var i=0; i<deps.length; i++) {
 			var path = base + deps[i]
 			res.write('document.write(\'<script src="'+path+'"></script>\')\n')
