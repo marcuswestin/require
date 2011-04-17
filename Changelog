@@ -1,7 +1,7 @@
 TODO
-+ Write our require.js for bootstrap request
++ When serving files, rewrite require statements to require._['<MODULE_PATH>']. MODULE PATH needs to be made absolute, relative to the URL of the file
++ Add to the end of each module file served, require._['<MODULE_PATH>'] = module.exports
 + Resolve npm module paths
-+ Resolve relative paths
 + Add option to add paths to the search path from the command line
 
 v0.2.8
