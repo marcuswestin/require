@@ -1,12 +1,5 @@
 TODO
 + Write our require.js for bootstrap request
-+ For each module
-	Look up dependencies
-	Read each dependency module
-		recurse
-	If no dependencies, or if dependency already covered
-		write out document.write('<script src="MODULEPATH"></script>')
-+ Write out a bunch of document.write statements creating script tags, one for each required module to load app/main, ending with app/main
 + Resolve npm module paths
 + Resolve relative paths
 + Add option to add paths to the search path from the command line
