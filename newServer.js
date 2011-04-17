@@ -8,12 +8,20 @@ var modules = {},
 	port = 1234,
 	host = 'localhost'
 
+var closureStart = '(function() {',
+	moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
+	closureEnd = '\n})()'
+
+moduleDef += 'var require = function() { return {} };'
+
 var server = http.createServer(function(req, res) {
 	if (req.url.match(/\.js$/)) {
 		fs.readFile(req.url, function(err, content) {
 			if (err) { return res.end('alert("' + err + '")') }
-			// TODO prefix with a (function() { ... })()
-			res.end(content)
+			// TODO rewrite require calls to require._["<MODULE PATH>"]
+			res.write(closureStart + moduleDef)
+			res.write(content)
+			res.end(closureEnd)
 		})
 	} else {
 		// main module
