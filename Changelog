@@ -1,5 +1,4 @@
 TODO
-+ Create a small file server for testing on :80
 + Create a server to respond to <script src="//localhost:1234"></script>
 + Run server inside of test
 + Server should take the request url path and respond with the require.resolve(path) file
