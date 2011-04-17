@@ -1,3 +1,11 @@
+TODO
++ Create a small file server for testing on :80
++ Create a server to respond to <script src="//localhost:1234"></script>
++ Run server inside of test
++ Server should take the request url path and respond with the require.resolve(path) file
++ Respond to <script src="//localhost:1234/app/main"></script> by loading app/main.js
++ Write out a bunch of document.write statements creating script tags, one for each required module to load app/main, ending with app/main
+
 v0.2.8
 + Don't leave require.paths modified after require.resolve. Add paths right before they're needed, and remove paths after.
 
