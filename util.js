@@ -2,10 +2,27 @@ var path = require('path'),
 	fs = require('fs')
 
 module.exports = {
+	addPath: addPath,
 	getDependencyList: getDependencyList,
 	getRequireStatements: getRequireStatements,
 	getRequireStatementPath: getRequireStatementPath,
+	resolve: resolve,
 	resolveRequireStatement: resolveRequireStatement
+}
+
+var _paths = []
+function addPath(newPath) {
+	_paths.push(path.normalize(newPath))
+}
+
+var _buildPaths = function() {
+	for (var i=0; i<_paths.length; i++) {
+		require.paths.unshift(_paths[i])
+	}
+}
+
+var _cleanPaths = function() {
+	require.paths.splice(0, _paths.length)
 }
 
 function getDependencyList(path) {
@@ -22,12 +39,19 @@ function getRequireStatementPath(requireStmnt) {
 	return requireStmnt.match(_pathnameGroupingRegex)[1]
 }
 
+function resolve(searchPath) {
+	_buildPaths()
+	var absPath = require.resolve(searchPath)
+	_cleanPaths()
+	return absPath
+}
+
 function resolveRequireStatement(requireStmnt, currentPath) {
 	var rawPath = getRequireStatementPath(requireStmnt),
 		cwd = path.dirname(currentPath) + '/',
 		isRelative = (rawPath[0] == '.'),
 		searchPath = (isRelative ? path.resolve(cwd + rawPath) : rawPath)
-	return require.resolve(searchPath)
+	return resolve(searchPath)
 }
 
 var _findRequiredModules = function(absolutePath, _requiredModules) {
