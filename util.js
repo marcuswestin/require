@@ -4,12 +4,12 @@ var path = require('path'),
 module.exports = {
 	getDependencyList: getDependencyList,
 	getRequireStatements: getRequireStatements,
-	getRequireStatementPath: getRequireStatementPath
+	getRequireStatementPath: getRequireStatementPath,
+	resolveRequireStatement: resolveRequireStatement
 }
 
-
 function getDependencyList(path) {
-	return _findRequiredModules(path)
+	return _findRequiredModules(path).concat(path)
 }
 
 var _globalRequireRegex = /require\s*\(['"][\w\/\.-]*['"]\)/g
@@ -22,22 +22,24 @@ function getRequireStatementPath(requireStmnt) {
 	return requireStmnt.match(_pathnameGroupingRegex)[1]
 }
 
+function resolveRequireStatement(requireStmnt, currentPath) {
+	var rawPath = getRequireStatementPath(requireStmnt),
+		cwd = path.dirname(currentPath) + '/',
+		isRelative = (rawPath[0] == '.'),
+		searchPath = (isRelative ? path.resolve(cwd + rawPath) : rawPath)
+	return require.resolve(searchPath)
+}
+
 var _findRequiredModules = function(absolutePath, _requiredModules) {
 	if (!_requiredModules) { _requiredModules = [] }
 	_requiredModules[absolutePath] = true
 	var code = _readFile(absolutePath),
 		requireStatements = getRequireStatements(code)
 	
-	var cwd = path.dirname(absolutePath) + '/'
 	for (var i=0, requireStmnt; requireStmnt = requireStatements[i]; i++) {
-		var rawPath = getRequireStatementPath(requireStmnt)
-			isRelative = (rawPath[0] == '.'),
-			searchPath = (isRelative ? path.resolve(cwd + rawPath) : rawPath)
-		// TODO A1 Remove var statement and add , at end of previous line
-		var absPath = require.resolve(searchPath)
+		var absPath = resolveRequireStatement(requireStmnt, absolutePath)
 		if (_requiredModules[absPath]) { continue }
 		_findRequiredModules(absPath, _requiredModules)
-		// TODO A2 absPath should be the same value as on 2 lines before, but it's not... Bug in v8?
 		_requiredModules.push(absPath)
 	}
 	return _requiredModules
