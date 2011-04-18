@@ -2,37 +2,41 @@ var path = require('path'),
 	fs = require('fs')
 
 module.exports = {
-	getDependencyList: getDependencyList
+	getDependencyList: getDependencyList,
+	getRequireStatements: getRequireStatements,
+	getRequireStatementPath: getRequireStatementPath
 }
 
 
 function getDependencyList(path) {
-	var modules = {}
-	return _getRequiredModules(path)
+	return _findRequiredModules(path)
 }
 
-var _globalRequireRegex = /require\s*\(['"][\w\/\.-]*['"]\)/g,
-	_pathnameGroupingRegex = /require\s*\(['"]([\w\/\.-]*)['"]\)/
-var _getRequiredModules = function(absolutePath, _seenModules, _requiredModules) {
-	if (!_seenModules) {
-		_seenModules = {}
-		_seenModules[absolutePath] = true
-		_requiredModules = []
-	}
+var _globalRequireRegex = /require\s*\(['"][\w\/\.-]*['"]\)/g
+function getRequireStatements(code) {
+	return code.match(_globalRequireRegex) || []
+}
+
+var _pathnameGroupingRegex = /require\s*\(['"]([\w\/\.-]*)['"]\)/
+function getRequireStatementPath(requireStmnt) {
+	return requireStmnt.match(_pathnameGroupingRegex)[1]
+}
+
+var _findRequiredModules = function(absolutePath, _requiredModules) {
+	if (!_requiredModules) { _requiredModules = [] }
+	_requiredModules[absolutePath] = true
 	var code = _readFile(absolutePath),
-		requireStatements = code.match(_globalRequireRegex)
-	if (!requireStatements) { return _requiredModules }
+		requireStatements = getRequireStatements(code)
 	
 	var cwd = path.dirname(absolutePath) + '/'
 	for (var i=0, requireStmnt; requireStmnt = requireStatements[i]; i++) {
-		var rawPath = requireStmnt.match(_pathnameGroupingRegex)[1]
+		var rawPath = getRequireStatementPath(requireStmnt)
 			isRelative = (rawPath[0] == '.'),
 			searchPath = (isRelative ? path.resolve(cwd + rawPath) : rawPath)
 		// TODO A1 Remove var statement and add , at end of previous line
 		var absPath = require.resolve(searchPath)
-		if (_seenModules[absPath]) { continue }
-		_seenModules[absPath] = true
-		_getRequiredModules(absPath, _seenModules, _requiredModules)
+		if (_requiredModules[absPath]) { continue }
+		_findRequiredModules(absPath, _requiredModules)
 		// TODO A2 absPath should be the same value as on 2 lines before, but it's not... Bug in v8?
 		_requiredModules.push(absPath)
 	}
