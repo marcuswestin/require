@@ -1,52 +1,51 @@
-var fs = require('fs')
+var http = require('http'),
+	fs = require('fs'),
+	path = require('path'),
+	util = require('./util')
 
 module.exports = {
-	setBase: setBase,
-	addPath: addPath,
-	handleRequest: handleRequest
+	listen: listen,
+	addPath: util.addPath
 }
 
-var _base,
-	_baseRegex
-function setBase(base) {
-	_base = base
-	_baseRegex = new RegExp('^' + _base.replace(/\//g, '\\/'))
-}
+var modules = {},
+	closureStart = '(function() {',
+	moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
+	closureEnd = '})()'
 
-var _paths = []
-function addPath(newPath) {
-	_paths.push(newPath)
-}
-
-function handleRequest(req, res) {
-	var path = req.url.substr(_base.length)
-
-	_buildPaths()
-	var onError = function() {
-		_cleanPaths()
-		res.writeHead(404)
-		res.end('Could not find ' + path)
-	}
-
-	if (!req.url.match(_baseRegex)) { return onError() }
-
-	try { path = require.resolve(path) }
-	catch(e) { return onError() }
-
-	fs.readFile(path, function(err, code) {
-		if (err) { return onError() }
-		_cleanPaths()
-		res.writeHead(200, { 'Content-Type': 'application/javascript' })
-		res.end(code)
+function listen(port, host) {
+	port = port || 1234
+	host = host || 'localhost'
+	var server = http.createServer(function(req, res) {
+		var reqPath = req.url.substr(1) 
+		if (reqPath.match(/\.js$/)) {
+			fs.readFile(reqPath, function(err, content) {
+				if (err) { return res.end('alert("' + err + '")') }
+				var code = content.toString()
+				res.write(closureStart + moduleDef)
+				var requireStatements = util.getRequireStatements(code)
+				for (var i=0, requireStmnt; requireStmnt = requireStatements[i]; i++) {
+					var depPath = util.resolveRequireStatement(requireStmnt, reqPath)
+					code = code.replace(requireStmnt, 'require._["'+depPath+'"]')
+				}
+				res.write(code)
+				res.write('\nrequire._["'+reqPath+'"]=module.exports')
+				res.end(closureEnd)
+			})
+		} else {
+			// main module
+			var modulePath = util.resolve(reqPath),
+				deps = util.getDependencyList(modulePath),
+				base = '//' + host + ':' + port + '/'
+	
+			res.write('function require(path){return require._[path]}; require._={}\n')
+			for (var i=0; i<deps.length; i++) {
+				var depPath = base + deps[i]
+				res.write('document.write(\'<script src="'+depPath+'"></script>\')\n')
+			}
+			res.end()
+		}
 	})
+	server.listen(port, host)
 }
 
-var _buildPaths = function() {
-	for (var i=0; i<_paths.length; i++) {
-		require.paths.unshift(_paths[i])
-	}
-}
-
-var _cleanPaths = function() {
-	require.paths.splice(0, _paths.length)
-}
