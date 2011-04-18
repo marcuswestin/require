@@ -1,5 +1,4 @@
 TODO
-+ Fix: Modules are being requested multiple times (should be at most once per module).
 + When serving files, rewrite require statements to require._['<MODULE_PATH>']. MODULE PATH needs to be made absolute, relative to the URL of the file
 + Resolve npm module paths
 + Add option to add paths to the search path from the command line

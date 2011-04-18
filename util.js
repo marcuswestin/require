@@ -13,25 +13,30 @@ function getDependencyList(path) {
 
 var _globalRequireRegex = /require\s*\(['"][\w\/\.-]*['"]\)/g,
 	_pathnameGroupingRegex = /require\s*\(['"]([\w\/\.-]*)['"]\)/
-var _getRequiredModules = function(absolutePath, _seenModules) {
-	if (!_seenModules) { _seenModules = [absolutePath] }
+var _getRequiredModules = function(absolutePath, _seenModules, _requiredModules) {
+	if (!_seenModules) {
+		_seenModules = {}
+		_seenModules[absolutePath] = true
+		_requiredModules = []
+	}
 	var code = _readFile(absolutePath),
-		requireStatements = code.match(_globalRequireRegex),
-		requiredModules = []
-	if (!requireStatements) { return requiredModules }
+		requireStatements = code.match(_globalRequireRegex)
+	if (!requireStatements) { return _requiredModules }
 	
 	var cwd = path.dirname(absolutePath) + '/'
 	for (var i=0, requireStmnt; requireStmnt = requireStatements[i]; i++) {
 		var rawPath = requireStmnt.match(_pathnameGroupingRegex)[1]
 			isRelative = (rawPath[0] == '.'),
-			searchPath = (isRelative ? path.resolve(cwd + rawPath) : rawPath),
-			absPath = require.resolve(searchPath)
+			searchPath = (isRelative ? path.resolve(cwd + rawPath) : rawPath)
+		// TODO A1 Remove var statement and add , at end of previous line
+		var absPath = require.resolve(searchPath)
 		if (_seenModules[absPath]) { continue }
 		_seenModules[absPath] = true
-		requiredModules = requiredModules.concat(_getRequiredModules(absPath), _seenModules)
-		requiredModules.push(absPath)
+		_getRequiredModules(absPath, _seenModules, _requiredModules)
+		// TODO A2 absPath should be the same value as on 2 lines before, but it's not... Bug in v8?
+		_requiredModules.push(absPath)
 	}
-	return requiredModules
+	return _requiredModules
 }
 
 var _readFile = function(path) {
