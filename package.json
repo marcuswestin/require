@@ -4,8 +4,10 @@
   "version": "0.3.0",
   "homepage": "https://github.com/marcuswestin/browser-require",
   "main": "./require",
+  "bin": "./bin/require-dev.js",
   "engines": {
-    "node": "*"
+    "node": "*",
+    "browsers": "*"
   },
   "repository": {
     "type": "git",
