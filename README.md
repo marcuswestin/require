@@ -21,9 +21,28 @@ importantly, why can't we easily import NPM packages in the browser environment?
 a small node server in dev that resolves all the browser's required dependencies, and by providing
 a compiler that will compile and compress all the required dependencies into a static file for prod.
 
+Example usage
+-------------
+Install some packages, run dev server
+
+	sudo npm install raphael
+	sudo npm install std
+	require
+
+Use require client side
+
+	var raphael = require('raphael'),
+		bind = require('std/bind')
+	
+	var el = document.body.appendChild(document.createElement('div')),
+		paper = raphael(el)
+	
+	var button = document.body.appendChild(document.createElement('button'))
+	button.innerHTML = 'A circle'
+	button.onclick = bind(paper, 'cicle', 50, 50, 40)
+
 Get started
 -----------
-
 Installation
 	
 	# From npm repo ...
