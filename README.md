@@ -44,25 +44,28 @@ Develop
 
 	# Create a simple file server for testing
 	mkdir require_test
+	echo "require('http').createServer(function(req, res) { res.end(require('fs').readFileSync('require_test'+req.url)) }).listen(9090)" > require_test/server.js
+	node require_test/server.js &
+
+	# Run require server
+	require --port 1234 --host localhost ./
+
+	# Hello world app
+	echo "<script src='//localhost:1234/hello_world'></script>" > require_test/hello_world.html
 	echo "alert('hello world')" > require_test/hello_world.js
-	echo "<script src='//localhost:1234/hello_world'></script>" > require_test/index.html
-	node -e "require('http').createServer(function(req, res) { res.end(require('fs').readFileSync('require_test/index.html')) }).listen(9090)" &
 
-	# Start up require dev server
-	require-dev --port 1234 --host localhost ./require_test
-	# Now open a browser to http://localhost:9090!
+	# Open http://localhost:9090/hello_world.html in your browser
 
-Use npm modules in the browser
+Use npm modules in the browser (do the Develop steps above first)
 
+	# Install raphael
 	sudo npm install raphael
-	mkdir require_test
-	echo "var raphael = require('raphael')" > require_test/raphael_npm.js
-	echo "<script src='//localhost:1234/raphael_npm'></script>" > require_test/index.html
-	node -e "require('http').createServer(function(req, res) { res.end(require('fs').readFileSync('require_test/index.html')) }).listen(9090)" &
 
-	# Start up require dev server
-	require-dev --port 1234 --host localhost ./require_test
-	# Now open a browser to http://localhost:9090!
+	# App using raphael
+	echo "<script src='//localhost:1234/raphael'></script>" > require_test/raphael.html
+	echo "var raphael = require('raphael')" > require_test/raphael.js
+
+	# Now open a browser to http://localhost:9090/raphael.html
 
 Compile for Production
 ----------------------
