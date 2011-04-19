@@ -32,10 +32,10 @@ function listen(port, host) {
 				var requireStatements = util.getRequireStatements(code)
 				for (var i=0, requireStmnt; requireStmnt = requireStatements[i]; i++) {
 					var depPath = util.resolveRequireStatement(requireStmnt, reqPath)
-					code = code.replace(requireStmnt, 'require._["'+depPath+'"]')
+					code = code.replace(requireStmnt, 'require["'+depPath+'"]')
 				}
 				res.write(code)
-				res.write('\nrequire._["'+reqPath+'"]=module.exports')
+				res.write('\nrequire["'+reqPath+'"]=module.exports')
 				res.end(closureEnd)
 			})
 		} else {
@@ -44,7 +44,7 @@ function listen(port, host) {
 				deps = util.getDependencyList(modulePath),
 				base = '//' + host + ':' + port + root
 	
-			res.write('function require(path){return require._[path]}; require._={}\n')
+			res.write('var require = {}\n')
 			for (var i=0; i<deps.length; i++) {
 				var depPath = base + deps[i]
 				res.write('document.write(\'<script src="'+depPath+'"></script>\')\n')
