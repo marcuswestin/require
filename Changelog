@@ -1,9 +1,12 @@
-TODO
-+ Write README
+intended v0.3.1
+- write README
 	- how to start server
 	- how to write script tag
 	- how to add paths
-+ Make a binary
+- make a binary (request <path1, path2, ...>
+
+v0.3.0
++ Make a standalone server for dev mode
 
 v0.2.8
 + Don't leave require.paths modified after require.resolve. Add paths right before they're needed, and remove paths after.
