@@ -26,10 +26,19 @@ Get started
 
 Installation
 	
+	# From npm repo
 	sudo npm install require
+
+	# From source
+	git clone git://github.com/marcuswestin/require.git
+	sudo npm install ./require
+
 	# Make sure the npm bin is in your path
 	echo "PATH=`npm bin`:$PATH" >> ~/.bash_profile
 	source ~/.bash_profile
+
+	# Run require server!
+	require --port 1234 --host localhost ./
 
 Develop
 
@@ -38,7 +47,7 @@ Develop
 	echo "alert('hello world')" > require_test/hello_world.js
 	echo "<script src='//localhost:1234/hello_world'></script>" > require_test/index.html
 	node -e "require('http').createServer(function(req, res) { res.end(require('fs').readFileSync('require_test/index.html')) }).listen(9090)" &
-	
+
 	# Start up require dev server
 	require-dev --port 1234 --host localhost ./require_test
 	# Now open a browser to http://localhost:9090!
@@ -59,12 +68,12 @@ Compile for Production
 ----------------------
 You can easily compile all the required modules into a single file. You can also further compress the compiled
 code with the google closure compiler.
-	
+
 	var compiler = require('require/compiler'),
 		compiledJS = compiled.compileFile('./module.js')
 	
 	fs.writeFileSync('compiled.js', compiledJS)
-	
+
 	compiler.compressFile('./module.js', function(compressedJS) {
 		fs.writeFileSync('compressed.js', compressedJS)
 	})
