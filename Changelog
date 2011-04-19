@@ -1,14 +1,13 @@
-intended v0.3.1
+intended v0.3.2
+- write unit tests
+- use util in compiler
+
+v0.3.1
 + Fix context bug in delay
 + Change compiled instances of require._[PATH] to require[PATH]. require is simply a hash of module paths.
 + Add setRoot API
-- write unit tests
-- use util in compiler
-- write README
-	- how to start server
-	- how to write script tag
-	- how to add paths
-- make a binary (request <path1, path2, ...>
++ Improved docs in README
++ Binary request-dev --port 1234 --host localhost ./path
 
 v0.3.0
 + Make a standalone server for dev mode

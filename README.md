@@ -27,6 +27,9 @@ Get started
 Installation
 	
 	sudo npm install require
+	# Make sure the npm bin is in your path
+	echo "PATH=`npm bin`:$PATH" >> ~/.bash_profile
+	source ~/.bash_profile
 
 Develop
 
