@@ -26,19 +26,16 @@ Get started
 
 Installation
 	
-	# From npm repo
+	# From npm repo ...
 	sudo npm install require
 
-	# From source
+	# ... or from source
 	git clone git://github.com/marcuswestin/require.git
 	sudo npm install ./require
 
 	# Make sure the npm bin is in your path
 	echo "PATH=`npm bin`:$PATH" >> ~/.bash_profile
 	source ~/.bash_profile
-
-	# Run require server!
-	require --port 1234 --host localhost ./
 
 Develop
 
@@ -48,7 +45,7 @@ Develop
 	node require_test/server.js &
 
 	# Run require server
-	require --port 1234 --host localhost ./
+	require --port 1234 --host localhost ./require_test &
 
 	# Hello world app
 	echo "<script src='//localhost:1234/hello_world'></script>" > require_test/hello_world.html
@@ -63,12 +60,14 @@ Use npm modules in the browser (do the Develop steps above first)
 
 	# App using raphael
 	echo "<script src='//localhost:1234/raphael'></script>" > require_test/raphael.html
-	echo "var raphael = require('raphael')" > require_test/raphael.js
+	echo "var raphael = require('raphael'); console.log(raphael)" > require_test/raphael.js
 
 	# Now open a browser to http://localhost:9090/raphael.html
 
 Compile for Production
 ----------------------
+The require server serves all dependencies synchronously. You don't want that for production.
+
 You can easily compile all the required modules into a single file. You can also further compress the compiled
 code with the google closure compiler.
 
