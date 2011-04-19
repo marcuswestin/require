@@ -1,55 +1,68 @@
 require
 =======
 
-Brings `require` to the browser
+Bring `require` to the browser
 -------------------------------
 
-Browser-require lets you write javascript using "require", "exports" and "module" in the browser, just as you would in node. It helps you with your dependency management, and provides a compiler to condense all your required modules into a single file for production. Using require, you can import utility modules you've already written for node into the browser.
+Node implements the type of simple, straight forward module import system that you would expect
+from any decent programming language. Together with npm, it's a perfect module management system:
 
-Example
--------
-Lets look at a somewhat contrived example that uses require in an html file to load a lib/math module, which in turn requires lib/util. 
+ - Synchronous require statements
+ - Runtime-modifiable search paths
+ - Intelligent path resolution
+ - An open, accesible package repository
+ - Versioned packages
 
-    // in lib/util.js
-    exports.each = function(arr, fn) {
-        for (var i=0; i<arr.length; i++) {
-            fn(arr[i], i)
-        }
-    }
-    
-    // in lib/math.js
-    var each = require('./util').each
-    exports.sum = function(numbers) {
-        var result = 0
-        each(numbers, function(n) {
-            result += n
-        }
-        return result
-    }
-    
-    // in index.html
-    <script src="require/require.js"></script>
-    <script>
-        var math = require('./lib/math')
-        alert(math.sum([1, 4, 8, 23, 9]))
-    </script>
+That's great for server-side node code, but on the browser we're still stuck with script tags or
+asynchronous AMD-style module loading. Why can't we simply have `require` in the browser? And more
+importantly, why can't we easily import NPM packages in the browser environment? Well, now we can.
+
+*require* lets you import javascript modules and npm packages from the browser. It works by running
+a small node server in dev that resolves all the browser's required dependencies, and by providing
+a compiler that will compile and compress all the required dependencies into a static file for prod.
+
+Get started
+-----------
+
+Installation
+	
+	sudo npm install require
+
+Develop
+
+	# Create a simple file server for testing
+	mkdir require_test
+	echo "alert('hello world')" > require_test/hello_world.js
+	echo "<script src='//localhost:1234/hello_world'></script>" > require_test/index.html
+	node -e "require('http').createServer(function(req, res) { res.end(require('fs').readFileSync('require_test/index.html')) }).listen(9090)" &
+	
+	# Start up require dev server
+	require-dev --port 1234 --host localhost ./require_test
+	# Now open a browser to http://localhost:9090!
+
+Use npm modules in the browser
+
+	sudo npm install raphael
+	mkdir require_test
+	echo "var raphael = require('raphael')" > require_test/raphael_npm.js
+	echo "<script src='//localhost:1234/raphael_npm'></script>" > require_test/index.html
+	node -e "require('http').createServer(function(req, res) { res.end(require('fs').readFileSync('require_test/index.html')) }).listen(9090)" &
+
+	# Start up require dev server
+	require-dev --port 1234 --host localhost ./require_test
+	# Now open a browser to http://localhost:9090!
 
 Compile for Production
 ----------------------
-require fetches the requested modules with a synchronous XHR. Before you deploy to production you will want to compile all the required modules into a single file:
+You can easily compile all the required modules into a single file. You can also further compress the compiled
+code with the google closure compiler.
+	
+	var compiler = require('require/compiler'),
+		compiledJS = compiled.compileFile('./module.js')
+	
+	fs.writeFileSync('compiled.js', compiledJS)
+	
+	compiler.compressFile('./module.js', function(compressedJS) {
+		fs.writeFileSync('compressed.js', compressedJS)
+	})
 
-    $ cd require
-    $ node compile.js path/to/app.js > compiled-app.js
-
-I intend to add the ability to compile an html page with require on it into a single html page with all required javascript inline.
-    
-    $ node compile.js path/to/index.html > compiled-app.html
-
-How does it work?
------------------
-Martin Hunt built a synchronous module loading system for [js.io]. Browser-require adopts a similar technique and lots of particular details to mimic node's require functionality in the browser.
-
-When a module is required, we fetch it's javascript as a string using a synchronous XHR. The module's javascript then gets evaluated inside of a function which takes the "module" object as an argument. This provides both the closure 
-
-
-[js.io]: https://github.com/mcarter/js.io/
