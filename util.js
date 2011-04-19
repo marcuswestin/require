@@ -73,28 +73,3 @@ var _readFile = function(path) {
 	return fs.readFileSync(path).toString()
 }
 
-//function replaceRequireStatements(absolutePath, modules) {
-//
-	////	return _registerModule(modulePath, code, modules)
-//
-	//	
-		//code = code.replace(requireStm, 'require._["' + dependencyAbsPath + '"].exports')
-//
-		//if (!modules[dependencyAbsPath]) {
-			//// modules[dependencyAbsPath] will be overwritten with code in
-			//// the recursive call to replaceRequireStatements
-			//modules[dependencyAbsPath] = true 
-			//replaceRequireStatements(absolutePath, modules)
-			//// we push the module on the stack after all the modules
-			//// it depends on have already been push on
-			//modules.push(dependencyAbsPath)
-		//}
-	//}
-//
-	//modules[absolutePath] = code
-//}
-
-var _registerModule = function(path, code, modules) {
-	modules.push(modulePath)
-	modules[modulePath] = code
-}
