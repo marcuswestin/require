@@ -5,19 +5,25 @@ var http = require('http'),
 
 module.exports = {
 	listen: listen,
-	addPath: util.addPath
+	addPath: util.addPath,
+	setRoot: setRoot
 }
 
 var modules = {},
 	closureStart = '(function() {',
 	moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
-	closureEnd = '})()'
+	closureEnd = '})()',
+	root = '/'
+
+function setRoot(_root) {
+	root = _root
+}
 
 function listen(port, host) {
 	port = port || 1234
-	host = host || 'localhost'
+	host = typeof host == 'undefined' ? 'localhost' : host
 	var server = http.createServer(function(req, res) {
-		var reqPath = req.url.substr(1) 
+		var reqPath = req.url.substr(root.length)
 		if (reqPath.match(/\.js$/)) {
 			fs.readFile(reqPath, function(err, content) {
 				if (err) { return res.end('alert("' + err + '")') }
@@ -36,7 +42,7 @@ function listen(port, host) {
 			// main module
 			var modulePath = util.resolve(reqPath),
 				deps = util.getDependencyList(modulePath),
-				base = '//' + host + ':' + port + '/'
+				base = '//' + host + ':' + port + root
 	
 			res.write('function require(path){return require._[path]}; require._={}\n')
 			for (var i=0; i<deps.length; i++) {
