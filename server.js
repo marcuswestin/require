@@ -40,14 +40,18 @@ function listen(port, host) {
 			})
 		} else {
 			// main module
-			var modulePath = util.resolve(reqPath),
-				deps = util.getDependencyList(modulePath),
-				base = '//' + host + ':' + port + root
+			try {
+				var modulePath = util.resolve(reqPath),
+					deps = util.getDependencyList(modulePath),
+					base = '//' + host + ':' + port + root
 	
-			res.write('var require = {}\n')
-			for (var i=0; i<deps.length; i++) {
-				var depPath = base + deps[i]
-				res.write('document.write(\'<script src="'+depPath+'"></script>\')\n')
+				res.write('var require = {}\n')
+				for (var i=0; i<deps.length; i++) {
+					var depPath = base + deps[i]
+					res.write('document.write(\'<script src="'+depPath+'"></script>\')\n')
+				}
+			} catch(e) {
+				res.write('alert("error in ' + (modulePath || reqPath) + ': ' + e + '")')
 			}
 			res.end()
 		}
