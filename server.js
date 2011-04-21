@@ -3,9 +3,9 @@ var http = require('http'),
 	path = require('path'),
 	util = require('./util')
 
-module.exports = {
+var server = module.exports = {
 	listen: listen,
-	addPath: util.addPath,
+	addPath: addPath,
 	setRoot: setRoot
 }
 
@@ -17,6 +17,12 @@ var modules = {},
 
 function setRoot(_root) {
 	root = _root
+	return server
+}
+
+function addPath(path) {
+	util.addPath(path)
+	return server
 }
 
 function listen(port, host) {
@@ -57,5 +63,6 @@ function listen(port, host) {
 		}
 	})
 	server.listen(port, host)
+	return server
 }
 
