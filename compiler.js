@@ -1,13 +1,9 @@
 module.exports = {
-	compile: compileJS,
-	compileFile: compileJSFile,
-	compress: compressJS,
+	compile: compile,
+	compileFile: compileFile,
+	compress: compress,
 	compressFile: compressFile,
-	indent: indentJS,
-	compileJS: compileJS, // deprecated
-	compileJSFile: compileJSFile, // deprecated
-	compressJS: compressJS, // deprecated
-	indentJS: indentJS // deprecated
+	indent: indent
 }
 
 var fs = require('fs'),
@@ -18,18 +14,18 @@ var fs = require('fs'),
 
 /* Compile a javascript file
  ***************************/
-function compileJSFile(filePath) {
-	return compileJS(_readFile(filePath), path.dirname(filePath))
+function compileFile(filePath) {
+	return compile(_readFile(filePath), path.dirname(filePath))
 }
 
-function compileJS(code, basePath) {
-	return indentJS('var require = {}\n' + compileJSModule(code, basePath))
+function compile(code, basePath) {
+	return indent('var require = {}\n' + compileModule(code, basePath))
 }
 
 /* Compress/minify with google closure
  *************************************/
 function compressFile(filePath, callback) {
-	compressJS(_readFile(filePath), callback)
+	compress(_readFile(filePath), callback)
 }
 // TODO: Look into
 // provide a closure to make all variables local: code = '(function(){'+code+'})()'
@@ -37,7 +33,7 @@ function compressFile(filePath, callback) {
 // --compute_phase_ordering: Runs the compile job many times, then prints out the best phase ordering from this run
 // --define (--D, -D) VAL Override the value of a variable annotated @define. The format is <name>[=<val>], where <name> is the name of a @define variable and <val> is a boolean, number, or a single-quot ed string that contains no single quotes. If [=<val>] is omitted, the variable is marked true
 // --print_ast, --print_pass_graph, --print_tree
-function compressJS(code, callback) {
+function compress(code, callback) {
 	var closureArgs = ['-jar', __dirname + '/google-closure.jar']
 	
 	var closure = child_process.spawn('java', closureArgs)
@@ -59,7 +55,7 @@ function compressJS(code, callback) {
 
 /* Compile require statements
  ****************************/
-function compileJSModule(code, pathBase) {
+function compileModule(code, pathBase) {
 	var mainModule = '__main__',
 		modules = [mainModule]
 
@@ -143,7 +139,7 @@ var _findTruePath = function(modulePath, modules) {
 
 /* Code indentation
  ******************/
-function indentJS(code) {
+function indent(code) {
 	var lines = code.replace(/\t/g, '').split('\n'),
 		result = [],
 		indentation = 0
