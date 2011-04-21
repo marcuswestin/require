@@ -1,4 +1,5 @@
 intended v0.3.2
++ allow chaining of methods on the require server
 + alert an error message client-side when a module is not found (rather than crash the process :)
 - write unit tests
 - use util in compiler
