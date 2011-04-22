@@ -2,7 +2,7 @@ intended v0.3.3
 - write unit tests
 - use util in compiler
 
-intended v0.3.2
+v0.3.2
 + Improved command line tool
 + new API: single method require('require/compiler').compile(<code | file path>, <compilation level 0 | 1 | 2 | 3>, <callback>)
 + allow chaining of methods on the require server
