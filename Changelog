@@ -1,9 +1,12 @@
+intended v0.3.3
+- write unit tests
+- use util in compiler
+
 intended v0.3.2
++ Improved command line tool
 + new API: single method require('require/compiler').compile(<code | file path>, <compilation level 0 | 1 | 2 | 3>, <callback>)
 + allow chaining of methods on the require server
 + alert an error message client-side when a module is not found (rather than crash the process :)
-- write unit tests
-- use util in compiler
 
 v0.3.1
 + Fix context bug in delay
