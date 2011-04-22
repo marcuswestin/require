@@ -46,11 +46,11 @@ Compilation
 ===========
 For production you want to bundle all your dependencies into a single file and compress them.
 
-	require compile ./example/shared/dependency.js --level 2
+	require compile ./example/client.js --level 2
 
 Add to the search path by passing in paths.
 
-	require compile dependency.js --level 2 --paths ./example/shared/
+	require compile ./example/client.js --level 2 --paths path/to/node_modules
 
 There are 4 different compilation levels - they correspond to google closure's compilation levels.
 Levels 2 and 3 are pretty aggressive and may break certain programming patterns, such as dynamic
