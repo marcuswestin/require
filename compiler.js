@@ -1,63 +1,80 @@
 module.exports = {
-	compile: compile,
-	compileFile: compileFile,
-	compress: compress,
-	compressFile: compressFile,
-	indent: indent
+	compile: compile
 }
 
 var fs = require('fs'),
-	sys = require('sys'),
 	path = require('path'),
-	util = require('util'),
 	child_process = require('child_process')
 
-/* Compile a javascript file
- ***************************/
-function compileFile(filePath) {
-	return compile(_readFile(filePath), path.dirname(filePath))
+/* compilation
+ *************/
+function compile(codeOrPath, level, callback) {
+	path.exists(codeOrPath, function(err, exists) {
+		if (err) { return callback(err) }
+		if (exists) {
+			// codeOrPath is a file path
+			fs.readFile(codeOrPath, function(err, code) {
+				if (err) { return callback(err) }
+				_compile(code, level, path.dirname(codeOrPath), callback)
+			})
+		} else {
+			// codeOrPath is code
+			_compile(codeOrPath, level, process.cwd(), callback)
+		}
+	})
 }
 
-function compile(code, basePath) {
-	return indent('var require = {}\n' + compileModule(code, basePath))
+var _compile = function(code, level, basePath, callback) {
+	try { var code = 'var require = {}\n' + _compileModule(code, basePath) }
+	catch(e) { return callback(e) }
+	if (level) { _compress(code, level, callback) }
+	else { callback(null, _indent(code)) }
 }
 
-/* Compress/minify with google closure
- *************************************/
-function compressFile(filePath, callback) {
-	compress(_readFile(filePath), callback)
-}
 // TODO: Look into
 // provide a closure to make all variables local: code = '(function(){'+code+'})()'
 // --compilation_level [WHITESPACE_ONLY | SIMPLE_OPTIMIZATIONS | ADVANCED_OPTIMIZATIONS]
 // --compute_phase_ordering: Runs the compile job many times, then prints out the best phase ordering from this run
 // --define (--D, -D) VAL Override the value of a variable annotated @define. The format is <name>[=<val>], where <name> is the name of a @define variable and <val> is a boolean, number, or a single-quot ed string that contains no single quotes. If [=<val>] is omitted, the variable is marked true
 // --print_ast, --print_pass_graph, --print_tree
-function compress(code, callback) {
-	var closureArgs = ['-jar', __dirname + '/google-closure.jar']
-	
-	var closure = child_process.spawn('java', closureArgs)
+var _compressionLevels = [null, 'WHITESPACE_ONLY', 'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS']
+function _compress(code, level, callback) {
+	var closureArgs = ['-jar', __dirname + '/lib/google-closure.jar', '--compilation_level', _compressionLevels[level]],
+		closure = child_process.spawn('java', closureArgs),
 		stdout = [],
 		stderr = []
 	closure.stdout.on('data', function(data) { stdout.push(data); });
 	closure.stderr.on('data', function(data) { stderr.push(data); });
 	closure.on('exit', function(code) {
-		if (code == 0) {
-			callback(stdout.join(''))
-		} else {
-			util.debug(stderr.join(''))
-			callback('')
-		}
+		if (code == 0) { callback(null, stdout.join('')) }
+		else { callback(new Error(stderr.join(''))) }
 	})
 	closure.stdin.write(code)
 	closure.stdin.end()
 }
 
-/* Compile require statements
- ****************************/
-function compileModule(code, pathBase) {
+/* util
+ ******/
+var _indent = function(code) {
+	var lines = code.replace(/\t/g, '').split('\n'),
+		result = [],
+		indentation = 0
+	
+	for (var i=0, line; i < lines.length; i++) {
+		line = lines[i]
+		
+		if (line.match(/^\s*\}/)) { indentation-- }
+		result.push(_repeat('\t', indentation) + line)
+		if (!line.match(/^\s*\/\//) && line.match(/\{\s*$/)) { indentation++ }
+	}
+	return result.join('\n')
+}
+
+var _compileModule = function(code, pathBase) {
 	var mainModule = '__main__',
 		modules = [mainModule]
+
+	pathBase = pathBase || process.cwd()
 
 	_replaceRequireStatements(mainModule, code, modules, pathBase)
 	code = _concatModules(modules)
@@ -97,7 +114,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 		if (!modules[subModulePath]) {
 			modules[subModulePath] = true
 			var newPathBase = path.dirname(subModulePath),
-				newModuleCode = _readFile(subModulePath + '.js')
+				newModuleCode = fs.readFileSync(subModulePath + '.js').toString()
 			_replaceRequireStatements(subModulePath, newModuleCode, modules, newPathBase)
 			modules.push(subModulePath)
 		}
@@ -136,31 +153,7 @@ var _findTruePath = function(modulePath, modules) {
 	throw 'require compiler: could not resolve "' + modulePath + '"'
 }
 
-
-/* Code indentation
- ******************/
-function indent(code) {
-	var lines = code.replace(/\t/g, '').split('\n'),
-		result = [],
-		indentation = 0
-	
-	for (var i=0, line; i < lines.length; i++) {
-		line = lines[i]
-		
-		if (line.match(/^\s*\}/)) { indentation-- }
-		result.push(_repeat('\t', indentation) + line)
-		if (!line.match(/^\s*\/\//) && line.match(/\{\s*$/)) { indentation++ }
-	}
-	return result.join('\n')
-}
-
-/* Util
- ******/
-function _repeat(str, times) {
+var _repeat = function(str, times) {
 	if (times < 0) { return '' }
 	return new Array(times + 1).join(str)
-}
-
-function _readFile(path) {
-	return fs.readFileSync(path).toString()
 }

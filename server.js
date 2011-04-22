@@ -1,7 +1,7 @@
 var http = require('http'),
 	fs = require('fs'),
 	path = require('path'),
-	util = require('./util')
+	util = require('./lib/util')
 
 var server = module.exports = {
 	listen: listen,
