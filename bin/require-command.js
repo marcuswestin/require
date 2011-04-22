@@ -40,6 +40,9 @@ while (args.length) {
 
 switch (opts.command) {
 	case 'server':
+		for (var i=0; i<opts.paths.length; i++) {
+			server.addPath(opts.paths[i])
+		}
 		server.listen(opts.port, opts.host)
 		console.log('dev server listening on', 'http://'+opts.host + ':' + opts.port, 'with paths:\n', opts.paths.concat(require.paths))
 		break
