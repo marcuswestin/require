@@ -7,14 +7,14 @@ compilation functionality for production deployment.
 
 Installation
 ============
-From npm
+From npm repo
 
 	sudo npm install require
 
-or get the source
+or from source
 
 	git clone git://github.com/marcuswestin/require.git
-
+	sudo npm install ./require
 
 Usage
 =====
