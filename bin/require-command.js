@@ -55,12 +55,12 @@ switch (opts.command) {
 	case 'compile':
 		var example = 'require compile ./path/to/file.js --level 2'
 		if (opts.level === null) {
-			console.log('Please specify a compilation level, e.g.')
+			console.log('Specify a compilation level, e.g.')
 			console.log(example)
 			process.exit(1)
 		}
-		if (opts.paths.length != 1) {
-			console.log('Please specify a single file to compile, e.g.')
+		if (!opts.file) {
+			console.log('Specify a single file to compile, e.g.')
 			console.log(example)
 			process.exit(1)
 		}
