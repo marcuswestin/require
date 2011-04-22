@@ -151,7 +151,7 @@ var _findTruePath = function(modulePath, modules) {
 	if (tryPath(modulePath)) { return modulePath }
 	if (tryPath(modulePath + '/index')) { return modulePath + '/index' }
 	if (tryPath(modulePath + 'index')) { return modulePath + 'index' }
-	throw 'require compiler: could not resolve "' + modulePath + '"'
+	throw new Error('require compiler: could not resolve "' + modulePath + '"')
 }
 
 var _repeat = function(str, times) {
