@@ -7,8 +7,9 @@ requireServer.listen(1234)
 requireServer.addPath('.')
 
 console.log('starting simple file server on localhost:8080')
+var base = __dirname + '/'
 http.createServer(function(req, res) {
-	fs.readFile(req.url.substr(1) || 'index.html', function(err, content) {
+	fs.readFile(base + (req.url.substr(1) || 'index.html'), function(err, content) {
 		if (err) { return res.end(err.stack) }
 		res.end(content)
 	})

@@ -91,6 +91,13 @@ And then require it client-side
 	
 	paper.circle(50, 50, 40)
 
+You can see the result if you have the source checked out:
+
+	git clone git://github.com/marcuswestin/require.git
+	cd require/example/
+	node server.js
+	# Open browser to http://localhost:8080/raphael_circle.html
+
 Examples
 ========
 For working examples, give this a try:
