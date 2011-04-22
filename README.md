@@ -5,7 +5,7 @@ Bring `require` to the browser
 -------------------------------
 
 Node implements a simple module management system with the `require` statement and the `npm` command
-line module manager. This library brings those functionalities to the browser, and well as advanced
+line module manager. This library brings those functionalities to the browser, as well as advanced
 compilation functionality for production deployment.
 
 Installation
@@ -19,36 +19,49 @@ From source
 	git clone git://github.com/marcuswestin/require.git
 
 
-Uage
+Usage
 ----
-In your HTML, import the client/main.js code and all its dependencies
+In your HTML, import a javascript module and all its dependencies. In this case we'll import the client/main module.
 
 	<script src="//localhost:1234/client/main"></script>
 
-Start the dev server from command line, and pass in the directory in which your modules are.
-If the client/main.js file above lives in ./js/client/main.js, you'll want:
+Start the dev server. You can pass in the port and host to listen on, as well as the directories in which your
+javascript modules live. Eg if client/main.js lives in ./js/client/main.js, you'll want:
 
 	require --port 1234 --host localhost ./modules
 
-(you'll want to make sure that the npm bin is in your path)
+(make sure that the npm bin is in your path)
 
-	echo "PATH=`npm bin`:$PATH" >> ~/.bash_profile
-	source ~/.bash_profile
+	echo "PATH=`npm bin`:$PATH" >> ~/.bash_profile && source ~/.bash_profile
 
-You can also start the require server programmatically along side e.g. your express app
+You can also start the require server programmatically alongside your other server
 
-	var server = require('require/server')
-	server.addPath(__dirname + '/modules')
-	server.listen(1234, 'localhost')
+	var devServer = require('require/server')
+	devServer.addPath(__dirname + '/modules')
+	devServer.listen(1234, 'localhost')
 
 Compilation for production
 --------------------------
-You can pass the compiler either a snippet of code, or a file path
+For production you want to bundle all your dependencies into a single file and compress them.
+
+	require compile ./example/shared/dependency --level 2
+
+There are 4 different compilation levels - they correspond to google closure's compilation levels.
+Levels 2 and 3 are pretty aggressive and may break certain programming patterns, such as dynamic
+dispatch  (`var eventName = 'click', document.body['on' + eventName = function() { ... }`)
+
+	Compilation levels:
+	0 - none
+	1 - whitespace
+	2 - simple optimizations
+	3 - advanced optimizations
+
+You can also use the compiler programmatically. Pass it a snipper of code, or a file path.
 
 	var compiler = require('require/compiler'),
 		code = 'console.log(require("./example/shared/dependency"))',
 		file = './example/client'
-	
+
 	compiler.compile(code, 1, function(err, compiledCode) {
 		if (err) { throw err }
 		console.log(compiledCode)
@@ -58,16 +71,6 @@ You can pass the compiler either a snippet of code, or a file path
 		if (err) { throw err }
 		console.log(compiledCode)
 	})
-
-You can compile at 4 different compilation levels
-
-	0 - none
-	1 - whitespace
-	2 - simple optimizations
-	3 - advanced optimizations
-
-The levels correspond to google closure's compilation levels. Levels 2 and 3 are pretty aggressive and may break
-certain programming patterns (such as dynamic dispatch, e.g. `var eventName = 'click', document.body['on' + eventName = function() { ... }`)
 
 npm packages
 ------------

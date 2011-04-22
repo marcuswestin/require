@@ -9,13 +9,12 @@ var fs = require('fs'),
 /* compilation
  *************/
 function compile(codeOrPath, level, callback) {
-	path.exists(codeOrPath, function(err, exists) {
-		if (err) { return callback(err) }
+	path.exists(codeOrPath, function(exists) {
 		if (exists) {
 			// codeOrPath is a file path
 			fs.readFile(codeOrPath, function(err, code) {
 				if (err) { return callback(err) }
-				_compile(code, level, path.dirname(codeOrPath), callback)
+				_compile(code.toString(), level, path.dirname(codeOrPath), callback)
 			})
 		} else {
 			// codeOrPath is code
