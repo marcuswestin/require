@@ -8,17 +8,21 @@ var fs = require('fs'),
 
 /* compilation
  *************/
-function compile(codeOrPath, level, callback) {
+function compile(codeOrPath, level, basePath, callback) {
+	if (!callback) {
+		callback = basePath
+		basePath = null
+	}
 	path.exists(codeOrPath, function(exists) {
 		if (exists) {
 			// codeOrPath is a file path
 			fs.readFile(codeOrPath, function(err, code) {
 				if (err) { return callback(err) }
-				_compile(code.toString(), level, path.dirname(codeOrPath), callback)
+				_compile(code.toString(), level, basePath || path.dirname(codeOrPath), callback)
 			})
 		} else {
 			// codeOrPath is code
-			_compile(codeOrPath, level, process.cwd(), callback)
+			_compile(codeOrPath, level, basePath || process.cwd(), callback)
 		}
 	})
 }
@@ -72,8 +76,6 @@ var _indent = function(code) {
 var _compileModule = function(code, pathBase) {
 	var mainModule = '__main__',
 		modules = [mainModule]
-
-	pathBase = pathBase || process.cwd()
 
 	_replaceRequireStatements(mainModule, code, modules, pathBase)
 	code = _concatModules(modules)
