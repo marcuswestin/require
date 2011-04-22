@@ -50,7 +50,7 @@ For production you want to bundle all your dependencies into a single file and c
 
 Add to the search path by passing in paths.
 
-	require compile ./my/file.js --level 2 --paths /my/javascript/modules
+	require compile dependency.js --level 2 --paths ./example/shared/
 
 There are 4 different compilation levels - they correspond to google closure's compilation levels.
 Levels 2 and 3 are pretty aggressive and may break certain programming patterns, such as dynamic
@@ -64,16 +64,14 @@ dispatch  (`var eventName = 'click', document.body['on' + eventName = function()
 
 You can also use the compiler programmatically. Pass it a snippet of code or a file path.
 
-	var compiler = require('require/compiler'),
-		code = 'console.log(require("./example/shared/dependency"))',
-		file = './example/client'
+	var compiler = require('require/compiler')
 
-	compiler.compile(code, 1, function(err, compiledCode) {
+	compiler.compile('./example/client.js', 2, function(err, compiledCode) {
 		if (err) { throw err }
 		console.log(compiledCode)
 	})
 
-	compiler.compile(file, 2, function(err, compiledCode) {
+	compiler.compile('console.log(require("./example/shared/dependency"))', 1, function(err, compiledCode) {
 		if (err) { throw err }
 		console.log(compiledCode)
 	})

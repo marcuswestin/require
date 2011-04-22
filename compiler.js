@@ -4,29 +4,30 @@ var fs = require('fs'),
 	util = require('./lib/util')
 
 module.exports = {
-	compile: compile,
+	compile: compileFile,
+	compileCode: compileCode,
 	addPath: util.addPath
 }
 
 /* compilation
  *************/
-function compile(codeOrPath, level, basePath, callback) {
+function compileFile(filePath, level, basePath, callback) {
 	if (!callback) {
 		callback = basePath
 		basePath = null
 	}
-	path.exists(codeOrPath, function(exists) {
-		if (exists) {
-			// codeOrPath is a file path
-			fs.readFile(codeOrPath, function(err, code) {
-				if (err) { return callback(err) }
-				_compile(code.toString(), level, basePath || path.dirname(codeOrPath), callback)
-			})
-		} else {
-			// codeOrPath is code
-			_compile(codeOrPath, level, basePath || process.cwd(), callback)
-		}
+	fs.readFile(filePath, function(err, code) {
+		if (err) { return callback(err) }
+		_compile(code.toString(), level, basePath || path.dirname(filePath), callback)
 	})
+}
+
+function compileCode(code, level, basePath, callback) {
+	if (!callback) {
+		callback = basePath
+		basePath = null
+	}
+	_compile(code, level, basePath || process.cwd(), callback)
 }
 
 var _compile = function(code, level, basePath, callback) {
