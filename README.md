@@ -11,34 +11,39 @@ From npm
 
 	sudo npm install require
 
-From source
+or get the source
 
 	git clone git://github.com/marcuswestin/require.git
 
 
 Usage
 =====
-In your HTML, import a javascript module and all its dependencies. In this case we'll import the client/main module.
+In your HTML, import a javascript module and all its dependencies with a simple script include.
+In this case we'll import the example/client module.
 
-	<script src="//localhost:1234/client/main"></script>
+	<script src="//localhost:1234/example/client"></script>
 
-Start the dev server. You can pass in the port and host to listen on, as well as the directories in which your
-javascript modules live. Eg if client/main.js lives in ./js/client/main.js, you'll want:
+Start the dev server. You can also pass in the directories in which your javascript modules live.
+Those directories will be added to the javascript module search path.
 
-	require --port 1234 --host localhost ./modules
+	require --port 1234 --host localhost
+	# or
+	require --port 1234 --host localhost ./path/to/my/app.js ./path/to/node_modules
 
 (make sure that the npm bin is in your path)
 
 	echo "PATH=`npm bin`:$PATH" >> ~/.bash_profile && source ~/.bash_profile
 
-You can also start the require server programmatically alongside your other server
+Use programmatically
+====================
+You can also start the require server programmatically alongside another node server.
 
 	var devServer = require('require/server')
 	devServer.addPath(__dirname + '/modules')
 	devServer.listen(1234, 'localhost')
 
-Compilation for production
-==========================
+Compilation
+===========
 For production you want to bundle all your dependencies into a single file and compress them.
 
 	require compile ./example/shared/dependency --level 2
@@ -53,7 +58,7 @@ dispatch  (`var eventName = 'click', document.body['on' + eventName = function()
 	2 - simple optimizations
 	3 - advanced optimizations
 
-You can also use the compiler programmatically. Pass it a snipper of code, or a file path.
+You can also use the compiler programmatically. Pass it a snippet of code or a file path.
 
 	var compiler = require('require/compiler'),
 		code = 'console.log(require("./example/shared/dependency"))',
@@ -71,11 +76,11 @@ You can also use the compiler programmatically. Pass it a snipper of code, or a 
 
 npm packages
 ============
-With require you can import npm packages on the client! Try installing e.g. raphael, the SVG library
+require can import npm packages in the browser. Try installing e.g. raphael, the SVG library.
 
 	sudo npm install raphael
 
-And then require it client-side!
+And then require it client-side
 
 	var raphael = require('raphael'),
 		canvas = document.body.appendChild(document.createElement('div')),
