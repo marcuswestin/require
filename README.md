@@ -62,7 +62,7 @@ dispatch  (`var eventName = 'click', document.body['on' + eventName = function()
 	2 - simple optimizations
 	3 - advanced optimizations
 
-You can also use the compiler programmatically. Pass it a snippet of code or a file path.
+You can also use the compiler programmatically. Pass it a file path, or a snippet of code.
 
 	var compiler = require('require/compiler')
 
@@ -71,7 +71,8 @@ You can also use the compiler programmatically. Pass it a snippet of code or a f
 		console.log(compiledCode)
 	})
 
-	compiler.compile('console.log(require("./example/shared/dependency"))', 1, function(err, compiledCode) {
+	var basePath = __dirname
+	compiler.compiledCode('console.log(require("./example/client"))', 1, basePath, function(err, compiledCode) {
 		if (err) { throw err }
 		console.log(compiledCode)
 	})
