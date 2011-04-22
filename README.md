@@ -72,7 +72,7 @@ You can also use the compiler programmatically. Pass it a file path, or a snippe
 	})
 
 	var basePath = __dirname
-	compiler.compiledCode('console.log(require("./example/client"))', 1, basePath, function(err, compiledCode) {
+	compiler.compileCode('console.log(require("./example/client"))', 1, basePath, function(err, compiledCode) {
 		if (err) { throw err }
 		console.log(compiledCode)
 	})
