@@ -4,98 +4,90 @@ require
 Bring `require` to the browser
 -------------------------------
 
-Node implements the type of simple, straight forward module import system that you would expect
-from any decent programming language. Together with npm, it's a perfect module management system:
+Node implements a simple module management system with the `require` statement and the `npm` command
+line module manager. This library brings those functionalities to the browser, and well as advanced
+compilation functionality for production deployment.
 
- - Synchronous require statements
- - Runtime-modifiable search paths
- - Intelligent path resolution
- - An open, accesible package repository
- - Versioned packages
-
-That's great for server-side node code, but on the browser we're still stuck with script tags or
-asynchronous AMD-style module loading. Why can't we simply have `require` in the browser? And more
-importantly, why can't we easily import NPM packages in the browser environment? Well, now we can.
-
-*require* lets you import javascript modules and npm packages from the browser. It works by running
-a small node server in dev that resolves all the browser's required dependencies, and by providing
-a compiler that will compile and compress all the required dependencies into a static file for prod.
-
-Example usage
--------------
-Install some packages, run dev server
-
-	sudo npm install raphael
-	sudo npm install std
-	require
-
-Use require client side
-
-	var raphael = require('raphael'),
-		bind = require('std/bind')
-	
-	var el = document.body.appendChild(document.createElement('div')),
-		paper = raphael(el)
-	
-	var button = document.body.appendChild(document.createElement('button'))
-	button.innerHTML = 'A circle'
-	button.onclick = bind(paper, 'cicle', 50, 50, 40)
-
-Get started
------------
 Installation
-	
-	# From npm repo ...
+------------
+From npm
+
 	sudo npm install require
 
-	# ... or from source
-	git clone git://github.com/marcuswestin/require.git
-	sudo npm install ./require
+From source
 
-	# Make sure the npm bin is in your path
+	git clone git://github.com/marcuswestin/require.git
+
+
+Uage
+----
+In your HTML, import the client/main.js code and all its dependencies
+
+	<script src="//localhost:1234/client/main"></script>
+
+Start the dev server from command line, and pass in the directory in which your modules are.
+If the client/main.js file above lives in ./js/client/main.js, you'll want:
+
+	require --port 1234 --host localhost ./modules
+
+(you'll want to make sure that the npm bin is in your path)
+
 	echo "PATH=`npm bin`:$PATH" >> ~/.bash_profile
 	source ~/.bash_profile
 
-Develop
+You can also start the require server programmatically along side e.g. your express app
 
-	# Create a simple file server for testing
-	mkdir require_test
-	echo "require('http').createServer(function(req, res) { res.end(require('fs').readFileSync('require_test'+req.url)) }).listen(9090)" > require_test/server.js
-	node require_test/server.js &
+	var server = require('require/server')
+	server.addPath(__dirname + '/modules')
+	server.listen(1234, 'localhost')
 
-	# Run require server
-	require --port 1234 --host localhost ./require_test &
-
-	# Hello world app
-	echo "<script src='//localhost:1234/hello_world'></script>" > require_test/hello_world.html
-	echo "alert('hello world')" > require_test/hello_world.js
-
-	# Open http://localhost:9090/hello_world.html in your browser
-
-Use npm modules in the browser (do the Develop steps above first)
-
-	# Install raphael
-	sudo npm install raphael
-
-	# App using raphael
-	echo "<script src='//localhost:1234/raphael'></script>" > require_test/raphael.html
-	echo "var raphael = require('raphael'); console.log(raphael)" > require_test/raphael.js
-
-	# Now open a browser to http://localhost:9090/raphael.html
-
-Compile for Production
-----------------------
-The require server serves all dependencies synchronously. You don't want that for production.
-
-You can easily compile all the required modules into a single file. You can also further compress the compiled
-code with the google closure compiler.
+Compilation for production
+--------------------------
+You can pass the compiler either a snippet of code, or a file path
 
 	var compiler = require('require/compiler'),
-		compiledJS = compiled.compileFile('./module.js')
+		code = 'console.log(require("./example/shared/dependency"))',
+		file = './example/client'
 	
-	fs.writeFileSync('compiled.js', compiledJS)
-
-	compiler.compressFile('./module.js', function(compressedJS) {
-		fs.writeFileSync('compressed.js', compressedJS)
+	compiler.compile(code, 1, function(err, compiledCode) {
+		if (err) { throw err }
+		console.log(compiledCode)
 	})
 
+	compiler.compile(file, 2, function(err, compiledCode) {
+		if (err) { throw err }
+		console.log(compiledCode)
+	})
+
+You can compile at 4 different compilation levels
+
+	0 - none
+	1 - whitespace
+	2 - simple optimizations
+	3 - advanced optimizations
+
+The levels correspond to google closure's compilation levels. Levels 2 and 3 are pretty aggressive and may break
+certain programming patterns (such as dynamic dispatch, e.g. `var eventName = 'click', document.body['on' + eventName = function() { ... }`)
+
+npm packages
+------------
+With require you can import npm packages on the client! Try installing e.g. raphael, the SVG library
+
+	sudo npm install raphael
+
+And then require it client-side!
+
+	var raphael = require('raphael'),
+		canvas = document.body.appendChild(document.createElement('div')),
+		paper = raphael(canvas)
+	
+	paper.circle(50, 50, 40)
+
+Examples
+--------
+For working examples, give this a try:
+
+	node require/examples/server.js
+	# open browser to localhost:8080
+	
+	node require/examples/compile.js
