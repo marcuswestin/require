@@ -1,6 +1,11 @@
-intended v0.3.3
+TODO
 - write unit tests
 - use util in compiler
+
+v0.4.0
++ New API
++ New command line utility
++ New documentation
 
 v0.3.2
 + Improved command line tool
