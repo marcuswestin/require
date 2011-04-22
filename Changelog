@@ -1,6 +1,7 @@
 TODO
 - write unit tests
 - use util in compiler
+- use uglifyjs rather than closure compiler
 
 v0.4.0
 + New API
