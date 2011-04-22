@@ -27,7 +27,7 @@ while (args.length) {
 			opts.port = args.shift()
 			break
 		case '--host':
-			opts.port = args.shift()
+			opts.host = args.shift()
 			break
 		case '--level':
 			opts.level = parseInt(args.shift())
