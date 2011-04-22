@@ -28,7 +28,7 @@ Those directories will be added to the javascript module search path.
 
 	require --port 1234 --host localhost
 	# or
-	require --port 1234 --host localhost ./path/to/my/app.js ./path/to/node_modules
+	require --port 1234 --host localhost --paths ./path/to/my/js/ ./path/to/node_modules/
 
 (make sure that the npm bin is in your path)
 
@@ -46,7 +46,11 @@ Compilation
 ===========
 For production you want to bundle all your dependencies into a single file and compress them.
 
-	require compile ./example/shared/dependency --level 2
+	require compile ./example/shared/dependency.js --level 2
+
+Add to the search path by passing in paths.
+
+	require compile ./my/file.js --level 2 --paths /my/javascript/modules
 
 There are 4 different compilation levels - they correspond to google closure's compilation levels.
 Levels 2 and 3 are pretty aggressive and may break certain programming patterns, such as dynamic

@@ -1,10 +1,12 @@
-module.exports = {
-	compile: compile
-}
-
 var fs = require('fs'),
 	path = require('path'),
-	child_process = require('child_process')
+	child_process = require('child_process'),
+	util = require('./lib/util')
+
+module.exports = {
+	compile: compile,
+	addPath: util.addPath
+}
 
 /* compilation
  *************/
@@ -107,7 +109,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 		var rawModulePath = requireStatement.match(_pathnameGroupingRegex)[1],
 			isRelative = (rawModulePath[0] == '.'),
 			// use node's resolution system is it's an installed package, e.g. require('socket.io/support/clients/socket.io')
-			searchPath = isRelative ? path.join(pathBase, rawModulePath) : (require.resolve(rawModulePath) || '').replace(/\.js$/, ''),
+			searchPath = isRelative ? path.join(pathBase, rawModulePath) : (util.resolve(rawModulePath) || '').replace(/\.js$/, ''),
 			subModulePath = _findTruePath(searchPath, modules)
 
 		code = code.replace(requireStatement, 'require["' + subModulePath + '"].exports')

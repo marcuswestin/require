@@ -10,7 +10,8 @@ var opts = {
 	port:    1234,
 	host:    'localhost',
 	level:   null,
-	command: 'server'
+	command: 'server',
+	file: null
 }
 
 var args = [].slice.call(process.argv, 2),
@@ -18,6 +19,7 @@ var args = [].slice.call(process.argv, 2),
 
 if (commands.indexOf(args[0]) != -1) {
 	opts.command = args.shift()
+	opts.file = args.shift()
 }
 
 while (args.length) {
@@ -32,17 +34,21 @@ while (args.length) {
 		case '--level':
 			opts.level = parseInt(args.shift())
 			break
+		case '--paths':
+			while(args[0] && args[0].charAt(0) != '-') {
+				opts.paths.push(path.resolve(process.cwd(), args.shift()))
+			}
+			break
 		default:
-			opts.paths.push(path.resolve(process.cwd(), arg))
+			console.log('Unknown option', arg)
+			process.exit(1)
 			break
 	}
 }
 
 switch (opts.command) {
 	case 'server':
-		for (var i=0; i<opts.paths.length; i++) {
-			server.addPath(opts.paths[i])
-		}
+		for (var i=0; i<opts.paths.length; i++) { server.addPath(opts.paths[i]) }
 		server.listen(opts.port, opts.host)
 		console.log('dev server listening on', 'http://'+opts.host + ':' + opts.port, 'with paths:\n', opts.paths.concat(require.paths))
 		break
@@ -51,23 +57,24 @@ switch (opts.command) {
 		if (opts.level === null) {
 			console.log('Please specify a compilation level, e.g.')
 			console.log(example)
-			process.exit()
+			process.exit(1)
 		}
 		if (opts.paths.length != 1) {
 			console.log('Please specify a single file to compile, e.g.')
 			console.log(example)
-			process.exit()
+			process.exit(1)
 		}
-		compiler.compile(opts.paths[0], opts.level, function(err, compiledCode) {
+		for (var i=0; i<opts.paths.length; i++) { compiler.addPath(opts.paths[i]) }
+		compiler.compile(opts.file, opts.level, function(err, compiledCode) {
 			if (err) {
 				console.log('Compilation error', err)
-				process.exit()
+				process.exit(1)
 			}
 			sys.print(compiledCode)
 		})
 		break
 	default:
 		console.log('Unknown command', opts.command)
-		process.exit()
+		process.exit(1)
 }
 
