@@ -1,15 +1,12 @@
-require
-=======
-
-Bring `require` to the browser
--------------------------------
+require brings `require` to the browser
+=======================================
 
 Node implements a simple module management system with the `require` statement and the `npm` command
 line module manager. This library brings those functionalities to the browser, as well as advanced
 compilation functionality for production deployment.
 
 Installation
-------------
+============
 From npm
 
 	sudo npm install require
@@ -20,7 +17,7 @@ From source
 
 
 Usage
-----
+=====
 In your HTML, import a javascript module and all its dependencies. In this case we'll import the client/main module.
 
 	<script src="//localhost:1234/client/main"></script>
@@ -41,7 +38,7 @@ You can also start the require server programmatically alongside your other serv
 	devServer.listen(1234, 'localhost')
 
 Compilation for production
---------------------------
+==========================
 For production you want to bundle all your dependencies into a single file and compress them.
 
 	require compile ./example/shared/dependency --level 2
@@ -73,7 +70,7 @@ You can also use the compiler programmatically. Pass it a snipper of code, or a 
 	})
 
 npm packages
-------------
+============
 With require you can import npm packages on the client! Try installing e.g. raphael, the SVG library
 
 	sudo npm install raphael
@@ -87,7 +84,7 @@ And then require it client-side!
 	paper.circle(50, 50, 40)
 
 Examples
---------
+========
 For working examples, give this a try:
 
 	node require/examples/server.js
