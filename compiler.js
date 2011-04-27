@@ -154,6 +154,10 @@ var _findTruePath = function(modulePath, modules) {
 	if (tryPath(modulePath)) { return modulePath }
 	if (tryPath(modulePath + '/index')) { return modulePath + '/index' }
 	if (tryPath(modulePath + 'index')) { return modulePath + 'index' }
+	if (path.existsSync(modulePath + '/package.json')) {
+		var main = JSON.parse(fs.readFileSync(modulePath + '/package.json').toString()).main.split('.')[0]
+		if (main && tryPath(modulePath + '/' + main)) { return modulePath + '/' + main }
+	}
 	throw new Error('require compiler: could not resolve "' + modulePath + '"')
 }
 

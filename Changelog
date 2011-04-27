@@ -3,6 +3,9 @@ TODO
 - use util in compiler
 - use uglifyjs rather than closure compiler
 
+intended v0.4.1
++ Consult package.json's "main" field when resolving modules in the compiler
+
 v0.4.0
 + New API
 + New command line utility
