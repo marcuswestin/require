@@ -2,6 +2,7 @@ TODO
 - write unit tests
 - use util in compiler
 - use uglifyjs rather than closure compiler
+- have the compiler handle require('index.js') case, where .js is included in the module name
 
 intended v0.4.1
 + Consult package.json's "main" field when resolving modules in the compiler
