@@ -113,7 +113,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 			searchPath = isRelative ? path.join(pathBase, rawModulePath) : (util.resolve(rawModulePath) || '').replace(/\.js$/, ''),
 			subModulePath = _findTruePath(searchPath, modules)
 
-		code = code.replace(requireStatement, 'require["' + subModulePath + '"].exports;')
+		code = code.replace(requireStatement, 'require["' + subModulePath + '"].exports')
 
 		if (!modules[subModulePath]) {
 			modules[subModulePath] = true
