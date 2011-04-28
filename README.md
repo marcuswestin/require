@@ -113,7 +113,7 @@ TODO
 	- Instead of running a standalone server, it would be nice to have require as e.g. connect middleware
 		`connect.createServer( require.connect() )`
 	- Or just attach to an http server
-		`var server = http.createServer(function(req, res) { ... })
-		require.mount(server)`
+		`var server = http.createServer(function(req, res) { ... })`
+		`require.mount(server)`
 	- Then just require files off of a pre-defined url
 		- `<script src="/require/main_module.js"></script>`
