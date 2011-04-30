@@ -7,6 +7,7 @@ TODO
 intended v0.4.1
 + Consult package.json's "main" field when resolving modules in the compiler
 + Fix bug where modules starting with (function() { ... }) would throw in their compiled form
++ Clearer compiler usage example in example/compile.js
 
 v0.4.0
 + New API

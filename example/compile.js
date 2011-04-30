@@ -1,6 +1,6 @@
 var sys = require('sys'),
 	fs = require('fs'),
-	compiler = require('../compiler')
+	compiler = require('require/compiler')
 
 var file = __dirname + '/client.js',
 	basePath = __dirname,
@@ -18,7 +18,7 @@ compileAndPrint(0, function() {
 
 function compileAndPrint(level, callback) {
 	console.log('Compile code at level', level)
-	compiler.compile(code, level, basePath, function(err, compiledCode) {
+	compiler.compileCode(code, level, basePath, function(err, compiledCode) {
 		if (err) { throw err }
 		console.log(compiledCode)
 		callback()
