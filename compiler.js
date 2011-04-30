@@ -18,7 +18,7 @@ function compileFile(filePath, level, basePath, callback) {
 	}
 	fs.readFile(filePath, function(err, code) {
 		if (err) { return callback(err) }
-		_compile(code.toString(), level, basePath || path.dirname(filePath), callback)
+		_compile(code.toString(), level, basePath || path.dirname(filePath), callback, filePath)
 	})
 }
 
@@ -27,11 +27,11 @@ function compileCode(code, level, basePath, callback) {
 		callback = basePath
 		basePath = null
 	}
-	_compile(code, level, basePath || process.cwd(), callback)
+	_compile(code, level, basePath || process.cwd(), callback, '<code passed into compiler.compile()>')
 }
 
-var _compile = function(code, level, basePath, callback) {
-	try { var code = 'var require = {}\n' + _compileModule(code, basePath) }
+var _compile = function(code, level, basePath, callback, mainModule) {
+	try { var code = 'var require = {}\n' + _compileModule(code, basePath, mainModule) }
 	catch(e) { return callback(e) }
 	if (level) { _compress(code, level, callback) }
 	else { callback(null, _indent(code)) }
@@ -76,10 +76,8 @@ var _indent = function(code) {
 	return result.join('\n')
 }
 
-var _compileModule = function(code, pathBase) {
-	var mainModule = '__main__',
-		modules = [mainModule]
-
+var _compileModule = function(code, pathBase, mainModule) {
+	var modules = [mainModule]
 	_replaceRequireStatements(mainModule, code, modules, pathBase)
 	code = _concatModules(modules)
 	code = _minifyRequireStatements(code, modules)
@@ -114,7 +112,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 			subModulePath = _findTruePath(searchPath, modules)
 
 		if (!subModulePath) {
-			throw new Error('require compiler: could not resolve "'+ subModulePath +'" in "'+ modulePath +'"')
+			throw new Error("Require Compiler Error: Cannot find module '"+ rawModulePath +"' (in '"+ modulePath +"')")
 		}
 
 		code = code.replace(requireStatement, 'require["' + subModulePath + '"].exports')
