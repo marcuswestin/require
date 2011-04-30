@@ -113,6 +113,10 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 			searchPath = isRelative ? path.join(pathBase, rawModulePath) : (util.resolve(rawModulePath) || '').replace(/\.js$/, ''),
 			subModulePath = _findTruePath(searchPath, modules)
 
+		if (!subModulePath) {
+			throw new Error('require compiler: could not resolve "'+ subModulePath +'" in "'+ modulePath +'"')
+		}
+
 		code = code.replace(requireStatement, 'require["' + subModulePath + '"].exports')
 
 		if (!modules[subModulePath]) {
@@ -158,7 +162,6 @@ var _findTruePath = function(modulePath, modules) {
 		var main = JSON.parse(fs.readFileSync(modulePath + '/package.json').toString()).main.split('.')[0]
 		if (main && tryPath(modulePath + '/' + main)) { return modulePath + '/' + main }
 	}
-	throw new Error('require compiler: could not resolve "' + modulePath + '"')
 }
 
 var _repeat = function(str, times) {
