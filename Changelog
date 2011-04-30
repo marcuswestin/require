@@ -4,10 +4,11 @@ TODO
 - use uglifyjs rather than closure compiler
 - have the compiler handle require('index.js') case, where .js is included in the module name
 
-intended v0.4.1
+v0.4.1
 + Consult package.json's "main" field when resolving modules in the compiler
 + Fix bug where modules starting with (function() { ... }) would throw in their compiled form
 + Clearer compiler usage example in example/compile.js
++ Better error messages when a module cannot be found during compilation
 
 v0.4.0
 + New API
