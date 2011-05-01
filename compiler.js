@@ -68,7 +68,7 @@ var _compileModule = function(code, pathBase, mainModule) {
 
 var _minifyRequireStatements = function(code, modules) {
 	for (var i=0, modulePath; modulePath = modules[i]; i++) {
-		var escapedPath = modulePath.replace(/\//g, '\\/'),
+		var escapedPath = modulePath.replace(/\//g, '\\/').replace('(','\\(').replace(')','\\)'),
 			regex = new RegExp('require\\["'+ escapedPath +'"\\]', 'g')
 		code = code.replace(regex, 'require["_'+ i +'"]')
 	}
