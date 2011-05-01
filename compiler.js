@@ -1,7 +1,9 @@
 var fs = require('fs'),
 	path = require('path'),
 	child_process = require('child_process'),
-	util = require('./lib/util')
+	util = require('./lib/util'),
+	extend = require('std/extend'),
+	uglifyJS = require('uglify-js')
 
 module.exports = {
 	compile: compileFile,
@@ -11,52 +13,32 @@ module.exports = {
 
 /* compilation
  *************/
-function compileFile(filePath, level, basePath, callback) {
-	if (!callback) {
-		callback = basePath
-		basePath = null
-	}
-	fs.readFile(filePath, function(err, code) {
-		if (err) { return callback(err) }
-		_compile(code.toString(), level, basePath || path.dirname(filePath), callback, filePath)
-	})
+function compileFile(filePath, opts) {
+	opts = extend(opts, { basePath:path.dirname(filePath), toplevel:true })
+	var code = fs.readFileSync(filePath).toString()
+	return _compile(code, opts, filePath)
 }
 
-function compileCode(code, level, basePath, callback) {
-	if (!callback) {
-		callback = basePath
-		basePath = null
-	}
-	_compile(code, level, basePath || process.cwd(), callback, '<code passed into compiler.compile()>')
+function compileCode(code, opts) {
+	opts = extend(opts, { basePath:process.cwd(), toplevel:true })
+	return _compile(code, opts, '<code passed into compiler.compile()>')
 }
 
-var _compile = function(code, level, basePath, callback, mainModule) {
-	try { var code = 'var require = {}\n' + _compileModule(code, basePath, mainModule) }
-	catch(e) { return callback(e) }
-	if (level) { _compress(code, level, callback) }
-	else { callback(null, _indent(code)) }
+var _compile = function(code, opts, mainModule) {
+	var code = 'var require = {}\n' + _compileModule(code, opts.basePath, mainModule)
+	if (opts.compile === false) { return code } // TODO use uglifyjs' beautifier?
+	else { return _compress(code, opts) }
 }
 
-// TODO: Look into
-// provide a closure to make all variables local: code = '(function(){'+code+'})()'
-// --compilation_level [WHITESPACE_ONLY | SIMPLE_OPTIMIZATIONS | ADVANCED_OPTIMIZATIONS]
-// --compute_phase_ordering: Runs the compile job many times, then prints out the best phase ordering from this run
-// --define (--D, -D) VAL Override the value of a variable annotated @define. The format is <name>[=<val>], where <name> is the name of a @define variable and <val> is a boolean, number, or a single-quot ed string that contains no single quotes. If [=<val>] is omitted, the variable is marked true
-// --print_ast, --print_pass_graph, --print_tree
-var _compressionLevels = [null, 'WHITESPACE_ONLY', 'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS']
-function _compress(code, level, callback) {
-	var closureArgs = ['-jar', __dirname + '/lib/google-closure.jar', '--compilation_level', _compressionLevels[level]],
-		closure = child_process.spawn('java', closureArgs),
-		stdout = [],
-		stderr = []
-	closure.stdout.on('data', function(data) { stdout.push(data); });
-	closure.stderr.on('data', function(data) { stderr.push(data); });
-	closure.on('exit', function(code) {
-		if (code == 0) { callback(null, stdout.join('')) }
-		else { callback(new Error(stderr.join(''))) }
-	})
-	closure.stdin.write(code)
-	closure.stdin.end()
+function _compress(code, opts) {
+	var parser = uglifyJS.parser,
+		uglify = uglifyJS.uglify,
+		ast = parser.parse(code, opts.strict_semicolons)
+	
+	ast = uglify.ast_mangle(ast, opts)
+	ast = uglify.ast_squeeze(ast, opts)
+
+	return uglify.gen_code(ast, opts)
 }
 
 /* util

@@ -9,7 +9,6 @@ var opts = {
 	paths:   [],
 	port:    1234,
 	host:    'localhost',
-	level:   null,
 	command: 'server',
 	file: null
 }
@@ -31,9 +30,6 @@ while (args.length) {
 		case '--host':
 			opts.host = args.shift()
 			break
-		case '--level':
-			opts.level = parseInt(args.shift())
-			break
 		case '--paths':
 			while(args[0] && args[0].charAt(0) != '-') {
 				opts.paths.push(path.resolve(process.cwd(), args.shift()))
@@ -53,25 +49,14 @@ switch (opts.command) {
 		console.log('dev server listening on', 'http://'+opts.host + ':' + opts.port, 'with paths:\n', opts.paths.concat(require.paths))
 		break
 	case 'compile':
-		var example = 'require compile ./path/to/file.js --level 2'
-		if (opts.level === null) {
-			console.log('Specify a compilation level, e.g.')
-			console.log(example)
-			process.exit(1)
-		}
+		var example = 'require compile ./path/to/file.js'
 		if (!opts.file) {
 			console.log('Specify a single file to compile, e.g.')
 			console.log(example)
 			process.exit(1)
 		}
 		for (var i=0; i<opts.paths.length; i++) { compiler.addPath(opts.paths[i]) }
-		compiler.compile(opts.file, opts.level, function(err, compiledCode) {
-			if (err) {
-				console.log('Compilation error', err)
-				process.exit(1)
-			}
-			sys.print(compiledCode)
-		})
+		sys.print(compiler.compile(opts.file)
 		break
 	default:
 		console.log('Unknown command', opts.command)

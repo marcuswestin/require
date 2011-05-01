@@ -46,36 +46,23 @@ Compilation
 ===========
 For production you want to bundle all your dependencies into a single file and compress them.
 
-	require compile ./example/client.js --level 2
+	require compile ./example/client.js
 
 Add to the search path by passing in paths.
 
-	require compile ./example/client.js --level 2 --paths path/to/node_modules
-
-There are 4 different compilation levels - they correspond to google closure's compilation levels.
-Levels 2 and 3 are pretty aggressive and may break certain programming patterns, such as dynamic
-dispatch  (`var eventName = 'click', document.body['on' + eventName = function() { ... }`)
-
-	Compilation levels:
-	0 - none
-	1 - whitespace
-	2 - simple optimizations
-	3 - advanced optimizations
+	require compile ./example/client.js --paths path/to/node_modules
 
 You can also use the compiler programmatically. Pass it a file path, or a snippet of code.
 
 	var compiler = require('require/compiler')
 
-	compiler.compile('./example/client.js', 2, function(err, compiledCode) {
-		if (err) { throw err }
-		console.log(compiledCode)
-	})
+	compiler.compile('./example/client.js')
 
-	var basePath = __dirname
-	compiler.compileCode('console.log(require("./example/client"))', 1, basePath, function(err, compiledCode) {
-		if (err) { throw err }
-		console.log(compiledCode)
-	})
+	compiler.compileCode('console.log(require("./example/client"))', { basePath:__dirname })
+
+The compiler supports all the options of https://github.com/mishoo/UglifyJS, e.g.
+
+	compiler.compile('./example/client.js', { beautify:true, ascii_only:true })
 
 npm packages
 ============
