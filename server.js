@@ -5,23 +5,24 @@ var http = require('http'),
 
 var server = module.exports = {
 	listen: listen,
-	addPath: addPath,
-	setRoot: setRoot
+	setRoot: setRoot,
+	setPath: setPath
 }
 
 var modules = {},
 	closureStart = '(function() {',
 	moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
 	closureEnd = '})()',
-	root = '/'
+	root = '/',
+	path = process.cwd()
 
 function setRoot(_root) {
 	root = _root
 	return server
 }
 
-function addPath(path) {
-	util.addPath(path)
+function setPath(_path) {
+	path = _path
 	return server
 }
 
@@ -47,8 +48,12 @@ function listen(port, host) {
 		} else {
 			// main module
 			try {
-				var modulePath = util.resolve(reqPath),
-					deps = util.getDependencyList(modulePath),
+				var modulePath = util.resolve(reqPath, path)
+				if (!modulePath) {
+					throw new Error('Could not find main module "' + reqPath + '"')
+				}
+
+				var deps = util.getDependencyList(modulePath),
 					base = '//' + host + ':' + port + root
 	
 				res.write('var require = {}\n')

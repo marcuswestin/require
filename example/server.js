@@ -1,10 +1,11 @@
 var http = require('http'),
 	fs = require('fs'),
 	dependency = require('./shared/dependency'),
-	requireServer = require('require/server')
+	requireServer = require('../server')
 
-requireServer.listen(1234)
-requireServer.addPath('.')
+requireServer
+	.setPath(__dirname)
+	.listen(1234)
 
 console.log('starting simple file server on localhost:8080')
 var base = __dirname + '/'

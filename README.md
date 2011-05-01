@@ -1,72 +1,63 @@
 require brings `require` to the browser
 =======================================
 
-Node implements a simple module management system with the `require` statement and the `npm` command
-line module manager. This library brings those functionalities to the browser, as well as advanced
-compilation functionality for production deployment.
+Node implements a simple module management system with the `require` function
+and the `npm` command line module manager. This library brings those
+functionalities to the browser, as well as advanced compilation functionality
+for production deployment.
 
 Installation
 ============
 From npm repo
 
-	sudo npm install require
+	sudo npm install -g require
 
 or from source
 
 	git clone git://github.com/marcuswestin/require.git
-	sudo npm install ./require
+	sudo npm install -g ./require
 
-Usage
-=====
-In your HTML, import a javascript module and all its dependencies with a simple script include.
-In this case we'll import the example/client module.
+Commandline usage
+=================
+Start the dev server.
 
-	<script src="//localhost:1234/example/client"></script>
+	require serve ./example --port 1234 --host localhost
 
-Start the dev server. You can also pass in the directories in which your javascript modules live.
-Those directories will be added to the javascript module search path.
+In your HTML, import a javascript module and all of its dependencies
+with a script include.
 
-	require --port 1234 --host localhost
-	# or
-	require --port 1234 --host localhost --paths ./path/to/my/js/ ./path/to/node_modules/
+	<script src="//localhost:1234/client"></script>
 
-(make sure that the npm bin is in your path)
+This will effectively resolve to require('client') as if ./example was in
+require.paths - i.e. it will try ./example/client.js, ./example/client/index.js,
+or read the "main" field from ./example/client/package.json.
+[Read more on node module path resolution](http://nodejs.org/docs/latest/api/all.html#modules)
 
-	echo "PATH=`npm bin`:$PATH" >> ~/.bash_profile && source ~/.bash_profile
-
-Use programmatically
-====================
-You can also start the require server programmatically alongside another node server.
-
-	var devServer = require('require/server')
-	devServer.addPath(__dirname + '/modules')
-	devServer.listen(1234, 'localhost')
-
-Compilation
-===========
-For production you want to bundle all your dependencies into a single file and compress them.
+For production you want to bundle all your dependencies into a single static
+file, and compress them.
 
 	require compile ./example/client.js
 
-Add to the search path by passing in paths.
+Use programmatically
+====================
+You can start the require server programmatically alongside another node server.
 
-	require compile ./example/client.js --paths path/to/node_modules
+	require('require/server').listen(1234, 'localhost')
 
-You can also use the compiler programmatically. Pass it a file path, or a snippet of code.
+There's also a programmatic API for the compiler.
 
 	var compiler = require('require/compiler')
-
-	compiler.compile('./example/client.js')
-
-	compiler.compileCode('console.log(require("./example/client"))', { basePath:__dirname })
+	console.log(compiler.compile('./example/client.js'))
+	console.log(compiler.compileCode('require("./example/client")'))
 
 The compiler supports all the options of https://github.com/mishoo/UglifyJS, e.g.
 
 	compiler.compile('./example/client.js', { beautify:true, ascii_only:true })
 
-npm packages
-============
-require can import npm packages in the browser. Try installing e.g. raphael, the SVG library.
+npm packages in the browser
+===========================
+require can import npm packages in the browser. Try installing e.g. raphael,
+the SVG library.
 
 	sudo npm install raphael
 
@@ -84,15 +75,6 @@ You can see the result if you have the source checked out:
 	cd require/example/
 	node server.js
 	# Open browser to http://localhost:8080/raphael_circle.html
-
-Examples
-========
-For working examples, give this a try:
-
-	node require/examples/server.js
-	# open browser to localhost:8080
-	
-	node require/examples/compile.js
 
 TODO
 ====

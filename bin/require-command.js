@@ -1,25 +1,22 @@
 #!/usr/bin/env node
 
 var path = require('path'),
-	server = require('../server'),
 	sys = require('sys'),
+	server = require('../server'),
 	compiler = require('../compiler')
 
 var opts = {
 	paths:   [],
 	port:    1234,
 	host:    'localhost',
-	command: 'server',
-	file: null
+	command: null,
+	path:    null
 }
 
-var args = [].slice.call(process.argv, 2),
-	commands = ['server', 'compile']
+var args = [].slice.call(process.argv, 2)
 
-if (commands.indexOf(args[0]) != -1) {
-	opts.command = args.shift()
-	opts.file = args.shift()
-}
+opts.command = args.shift()
+opts.path = args.shift()
 
 while (args.length) {
 	var arg = args.shift()
@@ -30,11 +27,6 @@ while (args.length) {
 		case '--host':
 			opts.host = args.shift()
 			break
-		case '--paths':
-			while(args[0] && args[0].charAt(0) != '-') {
-				opts.paths.push(path.resolve(process.cwd(), args.shift()))
-			}
-			break
 		default:
 			console.log('Unknown option', arg)
 			process.exit(1)
@@ -43,23 +35,30 @@ while (args.length) {
 }
 
 switch (opts.command) {
-	case 'server':
-		for (var i=0; i<opts.paths.length; i++) { server.addPath(opts.paths[i]) }
-		server.listen(opts.port, opts.host)
-		console.log('dev server listening on', 'http://'+opts.host + ':' + opts.port, 'with paths:\n', opts.paths.concat(require.paths))
+	case 'serve':
+		if (!opts.path) {
+			console.log('Specify a path to serve from, e.g. require serve ./example')
+			process.exit(1)
+		}
+		server
+			.setPath(opts.path)
+			.listen(opts.port, opts.host)
+		console.log('serving', opts.path, 'on', 'http://'+opts.host+':'+opts.port)
 		break
 	case 'compile':
-		var example = 'require compile ./path/to/file.js'
-		if (!opts.file) {
-			console.log('Specify a single file to compile, e.g.')
-			console.log(example)
+		if (!opts.path) {
+			console.log('Specify a single file to compile, e.g. require compile ./path/to/file.js')
 			process.exit(1)
 		}
 		for (var i=0; i<opts.paths.length; i++) { compiler.addPath(opts.paths[i]) }
-		sys.print(compiler.compile(opts.file))
+		sys.print(compiler.compile(opts.path))
 		break
 	default:
-		console.log('Unknown command', opts.command)
+		if (opts.command) {
+			console.log('Unknown command', opts.command)
+		} else {
+			console.log('You need to give a command, e.g. "require serve" or "require compile"')
+		}
 		process.exit(1)
 }
 
