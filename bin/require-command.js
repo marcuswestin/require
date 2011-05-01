@@ -56,7 +56,7 @@ switch (opts.command) {
 			process.exit(1)
 		}
 		for (var i=0; i<opts.paths.length; i++) { compiler.addPath(opts.paths[i]) }
-		sys.print(compiler.compile(opts.file)
+		sys.print(compiler.compile(opts.file))
 		break
 	default:
 		console.log('Unknown command', opts.command)
