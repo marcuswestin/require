@@ -33,7 +33,7 @@ function listen(port, host) {
 		var reqPath = req.url.substr(root.length)
 		if (reqPath.match(/\.js$/)) {
 			fs.readFile(reqPath, function(err, content) {
-				if (err) { return res.end('alert("' + err + '")') }
+				if (err) { return res.end(_error(err, reqPath)) }
 				var code = content.toString()
 				res.write(closureStart + moduleDef)
 				var requireStatements = util.getRequireStatements(code)
@@ -61,8 +61,8 @@ function listen(port, host) {
 					var depPath = base + deps[i]
 					res.write('document.write(\'<script src="'+depPath+'"></script>\')\n')
 				}
-			} catch(e) {
-				res.write('alert("error in ' + (modulePath || reqPath) + ': ' + e + '")')
+			} catch(err) {
+				res.end(_error(err, modulePath || reqPath))
 			}
 			res.end()
 		}
@@ -71,3 +71,7 @@ function listen(port, host) {
 	return server
 }
 
+function _error(err, path) {
+	var msg = err.stack.replace(/\n/g, '\\n').replace(/"/g, '\\"')
+	return 'alert("error in ' + path + ': ' + msg + '")'
+}
