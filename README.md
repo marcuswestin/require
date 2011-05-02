@@ -26,7 +26,7 @@ Start the dev server.
 In your HTML, import a javascript module and all of its dependencies
 with a script include.
 
-	<script src="//localhost:1234/client"></script>
+	<script src="//localhost:1234/require/client"></script>
 
 This will effectively resolve to require('client') as if ./example was in
 require.paths - i.e. it will try ./example/client.js, ./example/client/index.js,
@@ -40,9 +40,28 @@ file, and compress them.
 
 Use programmatically
 ====================
-You can start the require server programmatically alongside another node server.
+You can start the require server programmatically alongside another node server:
 
-	require('require/server').listen(1234, 'localhost')
+	require('require/server').listen(1234, { host:'localhost', path:__dirname + '/example' })
+
+or, you can mount it on an http server you're already running:
+
+	var http = require('http'),
+		requireServer = require('require/server')
+	
+	var server = http.createServer(function(req, res) { })
+	requireServer.mount(server, __dirname + '/example')
+	server.listen(8080, 'localhost')
+
+or, as connect middleware
+
+	var connect = require('connect'),
+		requireServer = require('require/server')
+	
+	connect.createServer(
+		connect.static(__dirname + '/example'),
+		requireServer.connect(__dirname + '/example')
+	)
 
 There's also a programmatic API for the compiler.
 
