@@ -1,7 +1,7 @@
 var http = require('http'),
 	fs = require('fs'),
 	dependency = require('./shared/dependency'),
-	requireServer = require('../server')
+	requireServer = require('require/server')
 
 var base = __dirname + '/',
 	root = 'require'
