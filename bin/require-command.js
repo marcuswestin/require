@@ -40,7 +40,7 @@ switch (opts.command) {
 			console.log('Specify a path to serve from, e.g. require serve ./example')
 			process.exit(1)
 		}
-		server.listen(opts.port, { host:opts.host, base:opts.path })
+		server.listen(opts.port, { host:opts.host, path:opts.path })
 		console.log('serving', opts.path, 'on', 'http://'+opts.host+':'+opts.port)
 		break
 	case 'compile':
