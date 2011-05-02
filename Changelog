@@ -1,7 +1,7 @@
 TODO
 - write unit tests
 
-intended v0.4.2
+v0.4.2
 + Use uglifyjs to compress JS
 + Synchronous compilation API
 + Remove --paths option. Search for modules exactly like require.resolve does
