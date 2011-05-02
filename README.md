@@ -28,10 +28,10 @@ with a script include.
 
 	<script src="//localhost:1234/require/client"></script>
 
-This will effectively resolve to require('client') as if ./example was in
+This will effectively resolve to calling require('client') with ./example in
 require.paths - i.e. it will try ./example/client.js, ./example/client/index.js,
 or read the "main" field from ./example/client/package.json.
-[Read more on node module path resolution](http://nodejs.org/docs/latest/api/all.html#modules)
+[Read more on node's require path resolution](http://nodejs.org/docs/latest/api/all.html#modules)
 
 For production you want to bundle all your dependencies into a single static
 file, and compress them.
@@ -42,7 +42,7 @@ Use programmatically
 ====================
 You can start the require server programmatically alongside another node server:
 
-	require('require/server').listen(1234, { host:'localhost', path:__dirname + '/example' })
+	require('require/server').listen(1234, __dirname + '/example')
 
 or, you can mount it on an http server you're already running:
 
@@ -94,14 +94,3 @@ You can see the result if you have the source checked out:
 	cd require/example/
 	node server.js
 	# Open browser to http://localhost:8080/raphael_circle.html
-
-TODO
-====
-- Thoughts from @guille:
-	- Instead of running a standalone server, it would be nice to have require as e.g. connect middleware
-		- `connect.createServer( require.connect() )`
-	- Or just attach to an http server
-		- `var server = http.createServer(function(req, res) { ... })`
-		- `require.mount(server)`
-	- Then just require files off of a pre-defined url
-		- `<script src="/require/main_module.js"></script>`
