@@ -53,7 +53,7 @@ switch (opts.command) {
 		break
 	default:
 		if (opts.command) {
-			console.log('Unknown command', opts.command)
+			console.log('Unknown command', '"' + opts.command + '".', 'Try "require serve" or "require compile"')
 		} else {
 			console.log('You need to give a command, e.g. "require serve" or "require compile"')
 		}
