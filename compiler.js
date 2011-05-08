@@ -68,7 +68,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 
 	for (var i=0, requireStatement; requireStatement = requireStatements[i]; i++) {
 		var rawModulePath = requireStatement.match(_pathnameGroupingRegex)[1],
-			subModulePath = util.resolve(rawModulePath, pathBase)
+			subModulePath = util.resolve(rawModulePath, pathBase).replace(/\.js$/, '')
 
 		if (!subModulePath) {
 			throw new Error("Require Compiler Error: Cannot find module '"+ rawModulePath +"' (in '"+ modulePath +"')")

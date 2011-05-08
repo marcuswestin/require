@@ -1,6 +1,9 @@
 TODO
 - write unit tests
 
+intended v0.4.3
++ Fix import of socket.io browser npm module
+
 v0.4.2
 + Use uglifyjs to compress JS
 + Synchronous compilation API
