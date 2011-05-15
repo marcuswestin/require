@@ -33,9 +33,6 @@ var _compile = function(code, opts, mainModule) {
 	return uglifyJS.uglify.gen_code(ast, opts)
 }
 
-function _compress(code, opts) {
-}
-
 /* util
  ******/
 var _compileModule = function(code, pathBase, mainModule) {
