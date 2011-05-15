@@ -12,6 +12,7 @@ module.exports = {
 /* api
  *****/
 function compileFile(filePath, opts) {
+	filePath = path.resolve(filePath)
 	opts = extend(opts, { basePath:path.dirname(filePath), toplevel:true })
 	var code = fs.readFileSync(filePath).toString()
 	return _compile(code, opts, filePath)
