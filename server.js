@@ -97,6 +97,8 @@ function _handleModuleRequest(reqPath, res) {
 
 		each(requireStatements, function(requireStmnt) {
 			var depPath = util.resolveRequireStatement(requireStmnt, reqPath)
+			if (!depPath) { return _sendError }
+			
 			code = code.replace(requireStmnt, 'require["'+depPath+'"]')
 		})
 
