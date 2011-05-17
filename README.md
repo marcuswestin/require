@@ -3,12 +3,14 @@ require brings `require` to the browser
 
 Node's `require()` is the de facto javascript dependency statement.
 
-npm is the de facto javascript module manager.
+`npm` is the de facto javascript module manager.
 
-`require` bring both to the browser.
+require brings both of them to the browser.
 
 tl;dr
 =====
+"Just give me some code that runs"
+
   mkdir app; cd app
   echo '{ "name":"app" }' > package.json
   sudo npm install require
@@ -45,12 +47,14 @@ This is like calling require('client') from inside ./example.
 
 Compile
 =======
-  require compile ./example/client.js > client.min.js
-
 (You'll want to do this before you deploy to production)
+
+  require compile ./example/client.js > client.min.js
 
 Use programmatically
 ====================
+In your node js:
+
 	require('require/server').listen(1234, __dirname + '/example')
 
 or mount it on an http server you're already running
