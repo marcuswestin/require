@@ -29,6 +29,7 @@ function mount(server, _opts, handleAllRequests) {
 			_handleRequest(req, res)
 		}
 	})
+	return server
 }
 
 function connect(opts) {
@@ -72,13 +73,11 @@ function _handleRequest(req, res) {
 }
 
 function _handleMainModuleRequest(reqPath, res) {
-	var modulePath = util.resolve(reqPath, opts.path)
-	if (!modulePath) {
-		return _sendError(res, reqPath, new Error('Could not find main module "' + reqPath + '"'))
-	}
+	var modulePath = util.resolve('./' + reqPath, opts.path)
+	if (!modulePath) { return _sendError(res, 'Could not find module "'+reqPath+'" from "'+opts.path+'"') }
 
 	try { var deps = util.getDependencyList(modulePath) }
-	catch(err) { return _sendError(res, reqPath, err) }
+	catch(err) { return _sendError(res, err) }
 
 	res.write('var require = {}\n')
 	each(deps, function(dependency) {
@@ -92,7 +91,7 @@ var _closureStart = '(function() {',
 	_closureEnd = '})()'
 function _handleModuleRequest(reqPath, res) {
 	fs.readFile(reqPath, function(err, content) {
-		if (err) { return _sendError(res, reqPath, err) }
+		if (err) { return _sendError(res, err.stack) }
 		var code = content.toString(),
 			requireStatements = util.getRequireStatements(code)
 
@@ -110,10 +109,10 @@ function _handleModuleRequest(reqPath, res) {
 
 /* util
  ******/
-function _sendError(res, path, err) {
-	var msg = err.stack.replace(/\n/g, '\\n').replace(/"/g, '\\"')
-	res.writeHead(200)
-	res.end('alert("error in ' + path + ': ' + msg + '")')
+function _sendError(res, msg) {
+	msg = msg.replace(/\n/g, '\\n').replace(/"/g, '\\"')
+	res.writeHead(500)
+	res.end('alert("error: ' + msg + '")')
 }
 
 function _getBase() {
