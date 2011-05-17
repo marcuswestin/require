@@ -113,7 +113,7 @@ function _handleModuleRequest(reqPath, res) {
  ******/
 function _sendError(res, msg) {
 	msg = msg.replace(/\n/g, '\\n').replace(/"/g, '\\"')
-	res.writeHead(500)
+	res.writeHead(200)
 	res.end('alert("error: ' + msg + '")')
 }
 
