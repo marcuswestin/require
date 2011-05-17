@@ -23,14 +23,8 @@ Now go to http://localhost:8080
 
 Install
 =======
-From npm
 
 	sudo npm install -g require
-
-From source
-
-	git clone git://github.com/marcuswestin/require.git
-	sudo npm install -g ./require
 
 Run
 ===
