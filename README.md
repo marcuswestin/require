@@ -15,8 +15,8 @@ tl;dr
 	echo '{ "name":"app" }' > package.json
 	sudo npm install require
 	sudo npm install raphael
-	curl -O https://gist.github.com/raw/975866/little_server.js
-	curl -O https://gist.github.com/raw/975868/little_client.js
+	curl -O https://raw.github.com/gist/975866/little_server.js
+	curl -O https://raw.github.com/gist/975868/little_client.js
 	node little_server.js
 
 Now go to http://localhost:8080
