@@ -1,6 +1,9 @@
 TODO
 - write unit tests
 
+intended v0.4.5
++ Set the mimetype of script files correctly
+
 v0.4.4
 + Import js files directly under node_modules correctly, e.g. ./node_modules/foo.js
 

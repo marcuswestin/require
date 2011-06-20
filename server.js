@@ -79,6 +79,7 @@ function _handleMainModuleRequest(reqPath, res) {
 	try { var deps = util.getDependencyList(modulePath) }
 	catch(err) { return _sendError(res, err) }
 
+	res.setHeader('Content-Type', 'text/javascript')
 	res.write('var require = {}\n')
 	each(deps, function(dependency) {
 		res.write('document.write(\'<script src="'+ _getBase() + '/' + dependency +'"></script>\')\n')
@@ -102,6 +103,7 @@ function _handleModuleRequest(reqPath, res) {
 			code = code.replace(requireStmnt, 'require["'+depPath+'"]')
 		})
 
+		res.setHeader('Content-Type', 'text/javascript')
 		res.write(_closureStart + _moduleDef)
 		res.write(code)
 		res.write('\nrequire["'+reqPath+'"]=module.exports')
