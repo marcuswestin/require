@@ -3,6 +3,7 @@ TODO
 
 intended v0.4.5
 + Set the mimetype of script files correctly
++ Remove node_modules directory - use dependencies in package.json instead
 
 v0.4.4
 + Import js files directly under node_modules correctly, e.g. ./node_modules/foo.js

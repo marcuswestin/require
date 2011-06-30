@@ -1,6 +1,6 @@
 var sys = require('sys'),
 	fs = require('fs'),
-	compiler = require('require/compiler')
+	compiler = require('../compiler')
 
 var file = __dirname + '/client.js',
 	basePath = __dirname,
