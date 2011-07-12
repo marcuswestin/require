@@ -8,6 +8,7 @@ intended v0.4.5
 + Implement addReplacement for replacing code during dev serving or compilation
 + Implement dontAddClosureForModule and dontIncludeModule for compiler
 + Remove dependency on std.js
++ Add usePagePort option to make module requests go to the host/port of the page it's served on, rather than the host/port passed in to listen(port, ...)
 
 v0.4.4
 + Import js files directly under node_modules correctly, e.g. ./node_modules/foo.js

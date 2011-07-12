@@ -176,8 +176,11 @@ function _sendError(res, msg) {
 }
 
 function _getBase() {
-	if (opts.host && opts.port) {
-		return '//' + opts.host + ':' + opts.port + '/' + opts.root
+	var host = opts.host,
+		port = (!opts.usePagePort && opts.port)
+	
+	if (host && port) {
+		return '//' + host + ':' + port + '/' + opts.root
 	} else {
 		return '/' + opts.root
 	}
