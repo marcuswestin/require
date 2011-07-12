@@ -10,16 +10,34 @@ module.exports = {
 	listen: listen,
 	mount: mount,
 	connect: connect,
-	isRequireRequest: isRequireRequest
+	isRequireRequest: isRequireRequest,
+	addPath: addPath,
+	addFile: addFile,
+	addReplacement: addReplacement
+}
+
+function addReplacement(searchFor, replaceWith) {
+	opts.replacements.push([searchFor, replaceWith])
+	return module.exports
+}
+
+function addPath() {
+	util.addPath.apply(util, arguments)
+	return module.exports
+}
+
+function addFile() {
+	util.addFile.apply(util, arguments)
+	return module.exports
 }
 
 function listen(port, _opts) {
+	if (!_opts) { _opts = { port:port }}
 	_setOpts(_opts)
-	port = opts.port = (port || 1234)
 	opts.handleAllRequests = true
 	var server = http.createServer()
 	mount(server)
-	server.listen(port, opts.host)
+	server.listen(opts.port, opts.host)
 }
 
 function mount(server, _opts, handleAllRequests) {
@@ -49,31 +67,33 @@ function isRequireRequest(req) {
 var opts = {
 	path: process.cwd(),
 	root: 'require',
-	port: null,
-	host: null
+	port: 1234,
+	host: 'localhost',
+	replacements: []
 }
 
 function _setOpts(_opts) {
-	if (typeof _opts == 'string') {
-		opts = extend({ path:_opts }, opts)
-	} else {
-		opts = extend(_opts, opts)
-	}
+	opts = extend(_opts, opts)
+}
+
+function _normalizeURL(url) {
+	return url.replace(/\?.*/g, '').replace(/\/js$/, '.js')
 }
 
 /* request handlers
  ******************/
 function _handleRequest(req, res) {
-	var reqPath = req.url.substr(opts.root.length + 2)
+	var reqPath = _normalizeURL(req.url).substr(opts.root.length + 2)
 	if (!reqPath.match(/\.js$/)) {
-		_handleMainModuleRequest(reqPath, res)
+		_handleMainModuleRequest(reqPath, req, res)
 	} else {
 		_handleModuleRequest(reqPath, res)
 	}
 }
 
-function _handleMainModuleRequest(reqPath, res) {
-	var modulePath = util.resolve('./' + reqPath, opts.path)
+function _handleMainModuleRequest(reqPath, req, res) {
+	var prefix = util.hasAddedPath(reqPath.split('/')[0]) ? '' : './',
+		modulePath = util.resolve(prefix + reqPath, opts.path)
 	if (!modulePath) { return _sendError(res, 'Could not find module "'+reqPath+'" from "'+opts.path+'"') }
 
 	try { var deps = util.getDependencyList(modulePath) }

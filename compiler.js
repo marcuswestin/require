@@ -6,7 +6,19 @@ var fs = require('fs'),
 
 module.exports = {
 	compile: compileFile,
-	compileCode: compileCode
+	compileCode: compileCode,
+	addPath: addPath,
+	addFile: addFile
+}
+
+function addPath() {
+	util.addPath.apply(util, arguments)
+	return module.exports
+}
+
+function addFile() {
+	util.addFile.apply(util, arguments)
+	return module.exports
 }
 
 /* api
