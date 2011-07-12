@@ -8,7 +8,13 @@ module.exports = {
 	compile: compileFile,
 	compileCode: compileCode,
 	addPath: addPath,
-	addFile: addFile
+	addFile: addFile,
+	addReplacement: addReplacement
+}
+
+function addReplacement(searchFor, replaceWith) {
+	util.addReplacement.apply(util, arguments)
+	return module.exports
 }
 
 function addPath() {
@@ -26,7 +32,7 @@ function addFile() {
 function compileFile(filePath, opts) {
 	filePath = path.resolve(filePath)
 	opts = extend(opts, { basePath:path.dirname(filePath), toplevel:true })
-	var code = fs.readFileSync(filePath).toString()
+	var code = util.getCode(filePath)
 	return _compile(code, opts, filePath)
 }
 
@@ -65,13 +71,12 @@ var _minifyRequireStatements = function(code, modules) {
 	return code
 }
 
-var _globalRequireRegex = /require\s*\(['"][\w\/\.-]*['"]\)/g,
-	_pathnameGroupingRegex = /require\s*\(['"]([\w\/\.-]*)['"]\)/
+var _pathnameGroupingRegex = /require\s*\(['"]([\w\/\.-]*)['"]\)/
 
 var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
-	var requireStatements = code.match(_globalRequireRegex)
+	var requireStatements = util.getRequireStatements(code)
 
-	if (!requireStatements) {
+	if (!requireStatements.length) {
 		modules[modulePath] = code
 		return
 	}
@@ -89,7 +94,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 		if (!modules[subModulePath]) {
 			modules[subModulePath] = true
 			var newPathBase = path.dirname(subModulePath),
-				newModuleCode = fs.readFileSync(subModulePath + '.js').toString()
+				newModuleCode = util.getCode(subModulePath + '.js')
 			_replaceRequireStatements(subModulePath, newModuleCode, modules, newPathBase)
 			modules.push(subModulePath)
 		}

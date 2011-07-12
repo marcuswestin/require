@@ -1,9 +1,6 @@
 var http = require('http'),
 	fs = require('fs'),
 	path = require('path'),
-	extend = require('std/extend'),
-	curry = require('std/curry'),
-	each = require('std/each'),
 	util = require('./lib/util')
 
 module.exports = {
@@ -17,7 +14,7 @@ module.exports = {
 }
 
 function addReplacement(searchFor, replaceWith) {
-	opts.replacements.push([searchFor, replaceWith])
+	util.addReplacement(searchFor, replaceWith)
 	return module.exports
 }
 
@@ -68,12 +65,15 @@ var opts = {
 	path: process.cwd(),
 	root: 'require',
 	port: 1234,
-	host: 'localhost',
-	replacements: []
+	host: 'localhost'
 }
 
 function _setOpts(_opts) {
-	opts = extend(_opts, opts)
+	if (!_opts) { return }
+	for (var key in opts) {
+		if (typeof _opts[key] == 'undefined') { continue }
+		opts[key] = _opts[key]
+	}
 }
 
 function _normalizeURL(url) {

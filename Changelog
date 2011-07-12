@@ -5,6 +5,8 @@ intended v0.4.5
 + Set the mimetype of script files correctly
 + Remove node_modules directory - use dependencies in package.json instead
 + Implement addPath and addFile for server and compiler
++ Implement addReplacement for replacing code during dev serving or compilation
++ Remove dependency on std.js
 
 v0.4.4
 + Import js files directly under node_modules correctly, e.g. ./node_modules/foo.js
