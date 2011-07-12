@@ -93,38 +93,78 @@ function _handleMainModuleRequest(reqPath, req, res) {
 	if (!modulePath) { return _sendError(res, 'Could not find module "'+reqPath+'" from "'+opts.path+'"') }
 
 	try { var deps = util.getDependencyList(modulePath) }
-	catch(err) { return _sendError(res, err) }
+	catch(err) { return _sendError(res, 'in util.getDependencyList: ' + err) }
 
-	res.writeHead(200, { 'Content-Type':'text/javascript' })
-	res.write('var require = {}\n')
-	each(deps, function(dependency) {
-		res.write('document.write(\'<script src="'+ _getBase() + '/' + dependency +'"></script>\')\n')
-	})
-	res.end()
+	var response = ['__require__ = {}']
+  
+	var userAgent = req.headers['user-agent'],
+		isMobile = userAgent.match('iPad') || userAgent.match('iPod'),
+		isSafari = !isMobile && userAgent.match('Safari') && !userAgent.match('Chrome')
+  
+	if (isMobile) {
+		// mobile clients take too long per js file request. Inline all the JS into a single request
+		for (var i=0, dependency; dependency = deps[i]; i++) {
+			response.push(_getModuleCode(dependency) + "\n")
+		}
+	} else {
+		response.push(
+			'__require__.__scripts = []',
+			'__require__.__loadNext = function() {',
+			'	var src = __require__.__scripts.shift()',
+			'	var url = location.protocol + src',
+			'	if (!src) { return }',
+			'	' + (isSafari
+				? 'document.write(\'<script src="\'+ url +\'"></script>\')'
+				: 'document.body.appendChild(document.createElement("script")).src = url'),
+		'}')
+
+		for (var i=0, dependency; dependency = deps[i]; i++) {
+			var src = _getBase() + '/' + dependency
+			response.push('__require__.__scripts.push("'+src+'")')
+		}
+
+		response.push('__require__.__loadNext()')
+	}
+
+	var buf = new Buffer(response.join('\n'), encoding='utf8')
+	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
+	res.write(buf)
+	res.end(response)
 }
 
-var _closureStart = '(function() {',
-	_moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
-	_closureEnd = '})()'
 function _handleModuleRequest(reqPath, res) {
-	fs.readFile(reqPath, function(err, content) {
-		if (err) { return _sendError(res, err.stack) }
-		var code = content.toString(),
-			requireStatements = util.getRequireStatements(code)
+	try { var code = _getModuleCode(reqPath) }
+	catch(err) { return _sendError(res, err.stack || err) }
 
-		each(requireStatements, function(requireStmnt) {
-			var depPath = util.resolveRequireStatement(requireStmnt, reqPath)
-			if (!depPath) { return _sendError }
-			
-			code = code.replace(requireStmnt, 'require["'+depPath+'"]')
-		})
+	code += '\n__require__.__loadNext()'
+	
+	var buf = new Buffer(code, encoding='utf8')
+	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
+	res.write(buf)
+	res.end()
+	
+}
 
-		res.writeHead(200, { 'Content-Type':'text/javascript' })
-		res.write(_closureStart + _moduleDef)
-		res.write(code)
-		res.write('\nrequire["'+reqPath+'"]=module.exports')
-		res.end(_closureEnd)
-	})
+function _getModuleCode(reqPath) {
+	var _closureStart = ';(function() {',
+		_moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
+		_closureEnd = '})()'
+
+	var code = util.getCode(reqPath),
+		requireStatements = util.getRequireStatements(code)
+
+	for (var i=0, requireStmnt; requireStmnt = requireStatements[i]; i++) {
+		try { var depPath = util.resolveRequireStatement(requireStmnt, reqPath) }
+		catch (e) { _sendError(res, e.message || e) }
+		if (!depPath) { return _sendError(res, 'Could not resolve module') }
+
+		code = code.replace(requireStmnt, '__require__["'+depPath+'"]')
+	}
+
+	return _closureStart
+		+ _moduleDef
+		+ code // all on the first line
+		+ '\n__require__["'+reqPath+'"]=module.exports '+ _closureEnd
 }
 
 /* util

@@ -79,8 +79,9 @@ var _compileModule = function(code, pathBase, mainModule) {
 var _minifyRequireStatements = function(code, modules) {
 	for (var i=0, modulePath; modulePath = modules[i]; i++) {
 		var escapedPath = modulePath.replace(/\//g, '\\/').replace('(','\\(').replace(')','\\)'),
-			regex = new RegExp('require\\["'+ escapedPath +'"\\]', 'g')
-		code = code.replace(regex, 'require["_'+ i +'"]')
+			regex = new RegExp('__require__\\["'+ escapedPath +'"\\]', 'g')
+		
+		code = code.replace(regex, '__require__["_'+ i +'"]')
 	}
 	return code
 }
@@ -103,8 +104,8 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 			throw new Error("Require Compiler Error: Cannot find module '"+ rawModulePath +"' (in '"+ modulePath +"')")
 		}
 
-		code = code.replace(requireStatement, 'require["' + subModulePath + '"].exports')
-
+		code = code.replace(requireStatement, '__require__["' + subModulePath + '"].exports')
+		
 		if (!modules[subModulePath]) {
 			modules[subModulePath] = true
 			var newPathBase = path.dirname(subModulePath),
@@ -136,7 +137,7 @@ var _concatModules = function(modules) {
 		return [
 			ignoreClosure ? '' : ';(function() {',
 			'	// ' + modulePath,
-			'	var module = require["'+modulePath+'"] = {exports:{}}, exports = module.exports;',
+			'	var module = __require__["'+modulePath+'"] = {exports:{}}, exports = module.exports;',
 			modules[modulePath],
 			ignoreClosure ? '' : '})()'
 		].join('\n')
