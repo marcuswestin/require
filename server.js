@@ -69,11 +69,7 @@ var opts = {
 }
 
 function _setOpts(_opts) {
-	if (!_opts) { return }
-	for (var key in opts) {
-		if (typeof _opts[key] == 'undefined') { continue }
-		opts[key] = _opts[key]
-	}
+	opts = util.extend(_opts, opts)
 }
 
 function _normalizeURL(url) {

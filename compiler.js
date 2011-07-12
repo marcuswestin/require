@@ -1,15 +1,27 @@
 var fs = require('fs'),
 	path = require('path'),
-	util = require('./lib/util'),
-	extend = require('std/extend'),
-	uglifyJS = require('uglify-js')
+	util = require('./lib/util')
 
 module.exports = {
 	compile: compileFile,
 	compileCode: compileCode,
+	dontAddClosureForModule: dontAddClosureForModule,
+	dontIncludeModule: dontIncludeModule,
 	addPath: addPath,
 	addFile: addFile,
 	addReplacement: addReplacement
+}
+
+var _ignoreClosuresFor = []
+function dontAddClosureForModule(searchFor) {
+	_ignoreClosuresFor.push(searchFor)
+	return module.exports
+}
+
+var _ignoreModules = []
+function dontIncludeModule(module) {
+	_ignoreModules.push(module)
+	return module.exports
 }
 
 function addReplacement(searchFor, replaceWith) {
@@ -31,19 +43,21 @@ function addFile() {
  *****/
 function compileFile(filePath, opts) {
 	filePath = path.resolve(filePath)
-	opts = extend(opts, { basePath:path.dirname(filePath), toplevel:true })
+	opts = util.extend(opts, { basePath:path.dirname(filePath), toplevel:true })
 	var code = util.getCode(filePath)
 	return _compile(code, opts, filePath)
 }
 
 function compileCode(code, opts) {
-	opts = extend(opts, { basePath:process.cwd(), toplevel:true })
+	opts = util.extend(opts, { basePath:process.cwd(), toplevel:true })
 	return _compile(code, opts, '<code passed into compiler.compile()>')
 }
 
 var _compile = function(code, opts, mainModule) {
-	var code = 'var require = {}\n' + _compileModule(code, opts.basePath, mainModule)
-	if (opts.compile === false) { return code } // TODO use uglifyjs' beautifier?
+	var code = 'var __require__ = {}\n' + _compileModule(code, opts.basePath, mainModule)
+	if (opts.minify === false) { return code } // TODO use uglifyjs' beautifier?
+
+	var uglifyJS = require('uglify-js')
 
 	var ast = uglifyJS.parser.parse(code, opts.strict_semicolons),
 	ast = uglifyJS.uglify.ast_mangle(ast, opts)
@@ -105,12 +119,26 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 
 var _concatModules = function(modules) {
 	var code = function(modulePath) {
+		for (var i=0; i<_ignoreModules.length; i++) {
+			if (modulePath.match(_ignoreModules[i])) {
+				return ''
+			}
+		}
+		
+		var ignoreClosure = false
+		for (var i=0; i<_ignoreClosuresFor.length; i++) {
+			if (modulePath.match(_ignoreClosuresFor[i])) {
+				ignoreClosure = true
+				break
+			}
+		}
+		
 		return [
-			';(function() {',
+			ignoreClosure ? '' : ';(function() {',
 			'	// ' + modulePath,
 			'	var module = require["'+modulePath+'"] = {exports:{}}, exports = module.exports;',
-				modules[modulePath],
-			'})()'
+			modules[modulePath],
+			ignoreClosure ? '' : '})()'
 		].join('\n')
 	}
 

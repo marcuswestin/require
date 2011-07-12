@@ -4,8 +4,9 @@ TODO
 intended v0.4.5
 + Set the mimetype of script files correctly
 + Remove node_modules directory - use dependencies in package.json instead
-+ Implement addPath and addFile for server and compiler
++ Implement addPath and addFile for specifying custom path resolutions
 + Implement addReplacement for replacing code during dev serving or compilation
++ Implement dontAddClosureForModule and dontIncludeModule for compiler
 + Remove dependency on std.js
 
 v0.4.4
