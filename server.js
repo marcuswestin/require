@@ -170,7 +170,7 @@ function _getModuleCode(reqPath) {
 /* util
  ******/
 function _sendError(res, msg) {
-	msg = msg.replace(/\n/g, '\\n').replace(/"/g, '\\"')
+	if (msg) { msg = msg.replace(/\n/g, '\\n').replace(/"/g, '\\"') }
 	res.writeHead(200)
 	res.end('alert("error: ' + msg + '")')
 }
