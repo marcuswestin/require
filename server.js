@@ -104,7 +104,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 	if (isMobile) {
 		// mobile clients take too long per js file request. Inline all the JS into a single request
 		for (var i=0, dependency; dependency = deps[i]; i++) {
-			response.push(_getModuleCode(dependency) + "\n")
+			response.push(_getModuleCode(res, dependency) + "\n")
 		}
 	} else {
 		response.push(
@@ -133,7 +133,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 }
 
 function _handleModuleRequest(reqPath, res) {
-	try { var code = _getModuleCode(reqPath) }
+	try { var code = _getModuleCode(res, reqPath) }
 	catch(err) { return _sendError(res, err.stack || err) }
 
 	code += '\n__require__.__loadNext()'
@@ -145,7 +145,7 @@ function _handleModuleRequest(reqPath, res) {
 	
 }
 
-function _getModuleCode(reqPath) {
+function _getModuleCode(res, reqPath) {
 	var _closureStart = ';(function() {',
 		_moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
 		_closureEnd = '})()'
