@@ -128,8 +128,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 
 	var buf = new Buffer(response.join('\n'), encoding='utf8')
 	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
-	res.write(buf)
-	res.end(response)
+	res.end(buf)
 }
 
 function _handleModuleRequest(reqPath, res) {
@@ -140,9 +139,7 @@ function _handleModuleRequest(reqPath, res) {
 	
 	var buf = new Buffer(code, encoding='utf8')
 	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
-	res.write(buf)
-	res.end()
-	
+	res.end(buf)
 }
 
 function _getModuleCode(res, reqPath) {
