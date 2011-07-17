@@ -98,7 +98,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 	var response = ['__require__ = {}']
   
 	var userAgent = req.headers['user-agent'],
-		isMobile = userAgent.match('iPad') || userAgent.match('iPod'),
+		isMobile = userAgent.match('iPad') || userAgent.match('iPod') || userAgent.match('iPhone'),
 		isSafari = !isMobile && userAgent.match('Safari') && !userAgent.match('Chrome')
   
 	if (isMobile) {
