@@ -10,7 +10,9 @@ module.exports = {
 	isRequireRequest: isRequireRequest,
 	addPath: addPath,
 	addFile: addFile,
-	addReplacement: addReplacement
+	addReplacement: addReplacement,
+	setOpts: setOpts,
+	handleRequest: handleRequest
 }
 
 function addReplacement(searchFor, replaceWith) {
@@ -30,7 +32,7 @@ function addFile() {
 
 function listen(port, _opts) {
 	if (!_opts) { _opts = { port:port }}
-	_setOpts(_opts)
+	setOpts(_opts)
 	opts.handleAllRequests = true
 	var server = http.createServer()
 	mount(server)
@@ -38,20 +40,20 @@ function listen(port, _opts) {
 }
 
 function mount(server, _opts, handleAllRequests) {
-	_setOpts(_opts)
+	setOpts(_opts)
 	server.on('request', function(req, res) {
 		if (isRequireRequest(req) || opts.handleAllRequests) {
-			_handleRequest(req, res)
+			handleRequest(req, res)
 		}
 	})
 	return server
 }
 
 function connect(opts) {
-	_setOpts(opts)
+	setOpts(opts)
 	return function require(req, res, next) {
 		if (!isRequireRequest(req)) { return next() }
-		_handleRequest(req, res)
+		handleRequest(req, res)
 	}
 }
 
@@ -68,7 +70,7 @@ var opts = {
 	host: 'localhost'
 }
 
-function _setOpts(_opts) {
+function setOpts(_opts) {
 	opts = util.extend(_opts, opts)
 }
 
@@ -78,7 +80,7 @@ function _normalizeURL(url) {
 
 /* request handlers
  ******************/
-function _handleRequest(req, res) {
+function handleRequest(req, res) {
 	var reqPath = _normalizeURL(req.url).substr(opts.root.length + 2)
 	if (!reqPath.match(/\.js$/)) {
 		_handleMainModuleRequest(reqPath, req, res)
