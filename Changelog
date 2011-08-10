@@ -1,6 +1,9 @@
 TODO
 - write unit tests
 
+v0.4.6
++ Add server.setOpts and server.handleRequest
+
 v0.4.5
 + Set the mimetype of script files correctly
 + Remove node_modules directory - use dependencies in package.json instead
