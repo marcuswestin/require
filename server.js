@@ -66,8 +66,8 @@ function isRequireRequest(req) {
 var opts = {
 	path: process.cwd(),
 	root: 'require',
-	port: 1234,
-	host: 'localhost'
+	port: null,
+	host: null
 }
 
 function setOpts(_opts) {

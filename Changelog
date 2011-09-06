@@ -1,6 +1,9 @@
 TODO
 - write unit tests
 
+intended v0.4.7
++ Remove default port and host - just use what the current page uses by default
+
 v0.4.6
 + Add server.setOpts and server.handleRequest
 
