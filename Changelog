@@ -3,6 +3,7 @@ TODO
 
 intended v0.4.7
 + Remove default port and host - just use what the current page uses by default
++ Treat Android devices as mobile, with regards to loading resources in one big response rather than individual requests
 
 v0.4.6
 + Add server.setOpts and server.handleRequest
