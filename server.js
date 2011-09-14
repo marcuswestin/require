@@ -117,7 +117,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 			'	if (!src) { return }',
 			'	' + (isSafari
 				? 'document.write(\'<script src="\'+ url +\'"></script>\')'
-				: 'document.body.appendChild(document.createElement("script")).src = url'),
+				: 'document.getElementsByTagName("head")[0].appendChild(document.createElement("script")).src = url'),
 		'}')
 
 		for (var i=0, dependency; dependency = deps[i]; i++) {
