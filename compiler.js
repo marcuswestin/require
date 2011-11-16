@@ -4,6 +4,7 @@ var fs = require('fs'),
 
 module.exports = {
 	compile: compileFile,
+	compileHTML: compileHTMLFile,
 	compileCode: compileCode,
 	dontAddClosureForModule: dontAddClosureForModule,
 	dontIncludeModule: dontIncludeModule,
@@ -52,6 +53,20 @@ function compileCode(code, opts) {
 	opts = util.extend(opts, { basePath:process.cwd(), toplevel:true })
 	return _compile(code, opts, '<code passed into compiler.compile()>')
 }
+
+function compileHTMLFile(filePath, opts) {
+	var html = fs.readFileSync(filePath).toString()
+	while (match = html.match(/<script src="\/require\/([\/\w\.]+)"><\/script>/)) {
+		var js = compileFile(match[1].toString(), opts)
+		
+		var BACKREFERENCE_WORKAROUND = '____________backreference_workaround________'
+		js = js.replace('\$\&', BACKREFERENCE_WORKAROUND)
+		html = html.replace(match[0], '<script>'+js+'</script>')
+		html = html.replace(BACKREFERENCE_WORKAROUND, '\$\&')
+	}
+	return html
+}
+
 
 var _compile = function(code, opts, mainModule) {
 	var code = 'var __require__ = {}\n' + _compileModule(code, opts.basePath, mainModule)
