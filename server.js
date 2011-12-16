@@ -100,8 +100,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 	var response = ['__require__ = {}']
   
 	var userAgent = req.headers['user-agent'],
-		isMobile = userAgent.match('iPad') || userAgent.match('iPod') || userAgent.match('iPhone') || userAgent.match('Android'),
-		isSafari = !isMobile && userAgent.match('Safari') && !userAgent.match('Chrome')
+		isMobile = userAgent.match('iPad') || userAgent.match('iPod') || userAgent.match('iPhone') || userAgent.match('Android')
   
 	if (isMobile) {
 		// mobile clients take too long per js file request. Inline all the JS into a single request
@@ -115,9 +114,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 			'	var src = __require__.__scripts.shift()',
 			'	var url = location.protocol + src',
 			'	if (!src) { return }',
-			'	' + (isSafari
-				? 'document.write(\'<script src="\'+ url +\'"></script>\')'
-				: 'document.getElementsByTagName("head")[0].appendChild(document.createElement("script")).src = url'),
+			'	document.getElementsByTagName("head")[0].appendChild(document.createElement("script")).src = url',
 		'}')
 
 		for (var i=0, dependency; dependency = deps[i]; i++) {
