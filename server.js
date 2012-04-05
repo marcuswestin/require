@@ -32,6 +32,7 @@ function addFile() {
 
 function listen(port, _opts) {
 	if (!_opts) { _opts = { port:port }}
+	else if(port) { _opts.port= port }
 	setOpts(_opts)
 	opts.handleAllRequests = true
 	var server = http.createServer()
