@@ -73,7 +73,7 @@ var _compile = function(code, opts, mainModule) {
 	if (opts.minify === false) { return code } // TODO use uglifyjs' beautifier?
 
 	if (opts.max_line_length == null) {
-		opts.max_line_length = 200
+		opts.max_line_length = 100
 	}
 	
 	var uglifyJS = require('uglify-js')
