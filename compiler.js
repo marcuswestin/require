@@ -72,6 +72,10 @@ var _compile = function(code, opts, mainModule) {
 	var code = 'var __require__ = {}\n' + _compileModule(code, opts.basePath, mainModule)
 	if (opts.minify === false) { return code } // TODO use uglifyjs' beautifier?
 
+	if (opts.max_line_length == null) {
+		opts.max_line_length = 200
+	}
+	
 	var uglifyJS = require('uglify-js')
 
 	var ast = uglifyJS.parser.parse(code, opts.strict_semicolons),
