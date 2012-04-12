@@ -1,7 +1,10 @@
 TODO
 - write unit tests
 
-intended v0.4.7
+v0.4.9
++ Make the max length of lines an option and make it quite short by default for easier debugging
+
+v0.4.7
 + Remove default port and host - just use what the current page uses by default
 + Treat Android devices as mobile, with regards to loading resources in one big response rather than individual requests
 + Now works if script include put in head
