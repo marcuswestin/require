@@ -69,7 +69,7 @@ function compileHTMLFile(filePath, opts) {
 
 
 var _compile = function(code, opts, mainModule) {
-	var code = 'var __require__ = {}\n' + _compileModule(code, opts.basePath, mainModule)
+	var code = 'var __require__ = {}, require=function(){}\n' + _compileModule(code, opts.basePath, mainModule)
 	if (opts.minify === false) { return code } // TODO use uglifyjs' beautifier?
 
 	if (opts.max_line_length == null) {

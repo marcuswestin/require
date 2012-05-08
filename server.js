@@ -98,7 +98,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 	try { var deps = util.getDependencyList(modulePath) }
 	catch(err) { return _sendError(res, 'in util.getDependencyList: ' + err) }
 
-	var response = ['__require__ = {}']
+	var response = ['__require__ = {}', 'require=function(){}']
   
 	var userAgent = req.headers['user-agent'],
 		isMobile = userAgent.match('iPad') || userAgent.match('iPod') || userAgent.match('iPhone') || userAgent.match('Android')
