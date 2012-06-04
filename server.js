@@ -113,7 +113,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 			'__require__.__scripts = []',
 			'__require__.__loadNext = function() {',
 			'	var src = __require__.__scripts.shift()',
-			'	var url = location.protocol + src',
+			'	var url = location.protocol+"//"+location.host + src',
 			'	if (!src) { return }',
 			'	document.getElementsByTagName("head")[0].appendChild(document.createElement("script")).src = url',
 		'}')
