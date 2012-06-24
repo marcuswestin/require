@@ -1,5 +1,4 @@
-var sys = require('sys'),
-	fs = require('fs'),
+var fs = require('fs'),
 	compiler = require('../compiler')
 
 var file = __dirname + '/client.js',

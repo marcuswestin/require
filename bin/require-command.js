@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var path = require('path'),
-	sys = require('sys'),
 	server = require('../server'),
 	compiler = require('../compiler')
 
@@ -47,7 +46,7 @@ switch (opts.command) {
 			console.log('Specify a single file to compile, e.g. require compile ./path/to/file.js')
 			process.exit(1)
 		}
-		sys.print(compiler.compile(opts.path))
+		console.log(compiler.compile(opts.path))
 		break
 	default:
 		if (opts.command) {
