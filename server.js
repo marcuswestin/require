@@ -98,7 +98,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 	try { var deps = util.getDependencyList(modulePath) }
 	catch(err) { return _sendError(res, 'in util.getDependencyList: ' + err) }
 
-	var response = ['__require__ = {}']
+	var response = ['__require__ = {}', 'require=function(){}']
   
 	var userAgent = req.headers['user-agent'],
 		isMobile = userAgent.match('iPad') || userAgent.match('iPod') || userAgent.match('iPhone') || userAgent.match('Android')
@@ -113,7 +113,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 			'__require__.__scripts = []',
 			'__require__.__loadNext = function() {',
 			'	var src = __require__.__scripts.shift()',
-			'	var url = location.protocol + src',
+			'	var url = location.protocol+"//"+location.host + src',
 			'	if (!src) { return }',
 			'	document.getElementsByTagName("head")[0].appendChild(document.createElement("script")).src = url',
 		'}')
