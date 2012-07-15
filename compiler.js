@@ -73,7 +73,7 @@ var _compile = function(code, opts, mainModule) {
 	if (opts.minify === false) { return code } // TODO use uglifyjs' beautifier?
 
 	if (opts.max_line_length == null) {
-		opts.max_line_length = 100
+		opts.max_line_length = 120
 	}
 	
 	var uglifyJS = require('uglify-js')
@@ -81,8 +81,12 @@ var _compile = function(code, opts, mainModule) {
 	var ast = uglifyJS.parser.parse(code, opts.strict_semicolons),
 	ast = uglifyJS.uglify.ast_mangle(ast, opts)
 	ast = uglifyJS.uglify.ast_squeeze(ast, opts)
-
-	return uglifyJS.uglify.gen_code(ast, opts)
+	
+	var result = uglifyJS.uglify.gen_code(ast, opts)
+	if (opts.max_line_length) {
+		result = uglifyJS.uglify.split_lines(result, opts.max_line_length)
+	}
+	return result
 }
 
 /* util
