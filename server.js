@@ -100,9 +100,11 @@ function _handleMainModuleRequest(reqPath, req, res) {
 
 	var response = ['__require__ = {}', 'require=function(){}']
   
-	var userAgent = req.headers['user-agent'],
-		isMobile = userAgent.match('iPad') || userAgent.match('iPod') || userAgent.match('iPhone') || userAgent.match('Android')
-  
+	var userAgent = req.headers['user-agent']
+	var isMobile = userAgent.match('iPad') || userAgent.match('iPod') || userAgent.match('iPhone') || userAgent.match('Android')
+	var isPhantom = userAgent.match(/PhantomJS/)
+		
+	
 	if (isMobile) {
 		// mobile clients take too long per js file request. Inline all the JS into a single request
 		for (var i=0, dependency; dependency = deps[i]; i++) {
@@ -115,7 +117,9 @@ function _handleMainModuleRequest(reqPath, req, res) {
 			'	var src = __require__.__scripts.shift()',
 			'	var url = location.protocol+"//"+location.host + src',
 			'	if (!src) { return }',
-			'	document.getElementsByTagName("head")[0].appendChild(document.createElement("script")).src = url',
+			isPhantom ? '	setTimeout(function() {' : '',
+			'		document.getElementsByTagName("head")[0].appendChild(document.createElement("script")).src = url',
+			isPhantom ? '	}, 20)' : '',
 		'}')
 
 		for (var i=0, dependency; dependency = deps[i]; i++) {
