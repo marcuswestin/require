@@ -109,8 +109,8 @@ var _minifyRequireStatements = function(code, modules) {
 	return code
 }
 
+var _nodePaths = process.env.NODE_PATH.split(':')
 var _pathnameGroupingRegex = /require\s*\(['"]([\w\/\.-]*)['"]\)/
-
 var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 	var requireStatements = util.getRequireStatements(code)
 
@@ -120,8 +120,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 	}
 
 	for (var i=0, requireStatement; requireStatement = requireStatements[i]; i++) {
-		var rawModulePath = requireStatement.match(_pathnameGroupingRegex)[1],
-			subModulePath = util.resolve(rawModulePath, pathBase).replace(/\.js$/, '')
+		var subModulePath = util.resolveRequireStatement(requireStatement, modulePath)
 
 		if (!subModulePath) {
 			throw new Error("Require Compiler Error: Cannot find module '"+ rawModulePath +"' (in '"+ modulePath +"')")
@@ -132,7 +131,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 		if (!modules[subModulePath]) {
 			modules[subModulePath] = true
 			var newPathBase = path.dirname(subModulePath),
-				newModuleCode = util.getCode(subModulePath + '.js')
+				newModuleCode = util.getCode(subModulePath)
 			_replaceRequireStatements(subModulePath, newModuleCode, modules, newPathBase)
 			modules.push(subModulePath)
 		}
