@@ -60,9 +60,10 @@ function compileHTMLFile(filePath, opts) {
 		var js = compileFile(match[1].toString(), opts)
 		
 		var BACKREFERENCE_WORKAROUND = '____________backreference_workaround________'
-		js = js.replace(/\$\&/g, BACKREFERENCE_WORKAROUND)
+		var BACKREFERENCE_WORKAROUND_REGEX = new RegExp(BACKREFERENCE_WORKAROUND, 'g')
+		js = js.replace(\$\&/g, BACKREFERENCE_WORKAROUND)
 		html = html.replace(match[0], '<script>'+js+'</script>')
-		html = html.replace(BACKREFERENCE_WORKAROUND, '\$\&')
+		html = html.replace(BACKREFERENCE_WORKAROUND_REGEX, '\$\&')
 	}
 	return html
 }
