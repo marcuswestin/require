@@ -49,7 +49,7 @@ Use programmatically
 ====================
 In node:
 
-	require('require/server').listen(1234, __dirname + '/example')
+	require('require/server').listen(1234)
 
 or mount it on an http server you're already running
 
@@ -61,7 +61,7 @@ or, as connect middleware
 
 	connect.createServer(
 		connect.static(__dirname + '/example'),
-		require('require/server').connect(__dirname + '/example')
+		require('require/server').connect()
 	)
 
 Compile programmatically:

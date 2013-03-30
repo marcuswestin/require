@@ -2,6 +2,7 @@ var http = require('http')
 var fs = require('fs')
 var path = require('path')
 var extend = require('std/extend')
+var isObject = require('std/isObject')
 var getDependencyList = require('./lib/getDependencyList')
 var getRequireStatements = require('./lib/getRequireStatements')
 var getCode = require('./lib/getCode')
@@ -12,35 +13,30 @@ module.exports = {
 	mount: mount,
 	connect: connect,
 	isRequireRequest: isRequireRequest,
-	setOpts: setOpts,
 	handleRequest: handleRequest
 }
 
-function listen(port, _opts) {
-	if (!_opts) { _opts = { port:port }}
-	else if(port) { _opts.port= port }
-	setOpts(_opts)
+function listen(portOrOpts) {
+	var _opts = (isObject(portOrOpts) ? portOrOpts : { port:portOrOpts || 1234 })
 	opts.handleAllRequests = true
-	var server = http.createServer()
-	mount(server)
-	server.listen(opts.port, opts.host)
+	mount(http.createServer(), _opts).listen(opts.port, opts.host)
 }
 
-function mount(server, _opts, handleAllRequests) {
+function mount(server, _opts) {
 	setOpts(_opts)
-	server.on('request', function(req, res) {
-		if (isRequireRequest(req) || opts.handleAllRequests) {
-			handleRequest(req, res)
-		}
-	})
-	return server
+	return server.on('request', _checkRequest)
 }
 
 function connect(opts) {
 	setOpts(opts)
-	return function require(req, res, next) {
-		if (!isRequireRequest(req)) { return next() }
+	return _checkRequest
+}
+
+function _checkRequest(req, res, next) {
+	if (isRequireRequest(req) || opts.handleAllRequests) {
 		handleRequest(req, res)
+	} else {
+		next && next()
 	}
 }
 
@@ -61,26 +57,24 @@ function setOpts(_opts) {
 	opts = extend(_opts, opts)
 }
 
-function _normalizeURL(url) {
-	return url.replace(/\?.*/g, '').replace(/\/js$/, '.js')
-}
-
 /* request handlers
  ******************/
 function handleRequest(req, res) {
 	var reqPath = _normalizeURL(req.url).substr(opts.root.length + 2)
-	if (!reqPath.match(/\.js$/)) {
-		_handleMainModuleRequest(reqPath, req, res)
-	} else {
+	if (reqPath.match(/\.js$/)) {
 		_handleModuleRequest(reqPath, res)
+	} else {
+		_handleMainModuleRequest(reqPath, req, res)
+	}
+
+	function _normalizeURL(url) {
+		return url.replace(/\?.*/g, '').replace(/\/js$/, '.js')
 	}
 }
 
 function _handleMainModuleRequest(reqPath, req, res) {
 	var modulePath = resolve.path('./' + reqPath, opts.path)
 	if (!modulePath) { return _sendError(res, 'Could not find module "'+reqPath+'" from "'+opts.path+'"') }
-
-
 
 	try { var deps = getDependencyList(modulePath) }
 	catch(err) { return _sendError(res, 'in getDependencyList: ' + err) }
