@@ -1,6 +1,8 @@
-var fs = require('fs'),
-	path = require('path'),
-	util = require('./lib/util')
+var fs = require('fs')
+var path = require('path')
+var util = require('./lib/util')
+var getCode = require('./lib/getCode')
+var resolve = require('./lib/resolve')
 
 module.exports = {
 	compile: compileFile,
@@ -9,8 +11,7 @@ module.exports = {
 	dontAddClosureForModule: dontAddClosureForModule,
 	dontIncludeModule: dontIncludeModule,
 	addPath: addPath,
-	addFile: addFile,
-	addReplacement: addReplacement
+	addFile: addFile
 }
 
 var _ignoreClosuresFor = []
@@ -22,11 +23,6 @@ function dontAddClosureForModule(searchFor) {
 var _ignoreModules = []
 function dontIncludeModule(module) {
 	_ignoreModules.push(module)
-	return module.exports
-}
-
-function addReplacement(searchFor, replaceWith) {
-	util.addReplacement.apply(util, arguments)
 	return module.exports
 }
 
@@ -45,7 +41,7 @@ function addFile() {
 function compileFile(filePath, opts) {
 	filePath = path.resolve(filePath)
 	opts = util.extend(opts, { basePath:path.dirname(filePath), toplevel:true })
-	var code = util.getCode(filePath)
+	var code = getCode(filePath)
 	return _compile(code, opts, filePath)
 }
 
@@ -78,7 +74,7 @@ var _compile = function(code, opts, mainModule) {
 	
 	var uglifyJS = require('uglify-js')
 
-	var ast = uglifyJS.parser.parse(code, opts.strict_semicolons),
+	var ast = uglifyJS.parser.parse(code, opts.strict_semicolons)
 	ast = uglifyJS.uglify.ast_mangle(ast, opts)
 	ast = uglifyJS.uglify.ast_squeeze(ast, opts)
 	
@@ -101,8 +97,8 @@ var _compileModule = function(code, pathBase, mainModule) {
 
 var _minifyRequireStatements = function(code, modules) {
 	for (var i=0, modulePath; modulePath = modules[i]; i++) {
-		var escapedPath = modulePath.replace(/\//g, '\\/').replace('(','\\(').replace(')','\\)'),
-			regex = new RegExp('__require__\\["'+ escapedPath +'"\\]', 'g')
+		var escapedPath = modulePath.replace(/\//g, '\\/').replace('(','\\(').replace(')','\\)')
+		var regex = new RegExp('__require__\\["'+ escapedPath +'"\\]', 'g')
 		
 		code = code.replace(regex, '__require__["_'+ i +'"]')
 	}
@@ -130,8 +126,8 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 		
 		if (!modules[subModulePath]) {
 			modules[subModulePath] = true
-			var newPathBase = path.dirname(subModulePath),
-				newModuleCode = util.getCode(subModulePath)
+			var newPathBase = path.dirname(subModulePath)
+			var newModuleCode = getCode(subModulePath)
 			_replaceRequireStatements(subModulePath, newModuleCode, modules, newPathBase)
 			modules.push(subModulePath)
 		}

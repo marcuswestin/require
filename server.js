@@ -1,7 +1,7 @@
-var http = require('http'),
-	fs = require('fs'),
-	path = require('path'),
-	util = require('./lib/util')
+var http = require('http')
+var fs = require('fs')
+var path = require('path')
+var util = require('./lib/util')
 
 module.exports = {
 	listen: listen,
@@ -10,14 +10,8 @@ module.exports = {
 	isRequireRequest: isRequireRequest,
 	addPath: addPath,
 	addFile: addFile,
-	addReplacement: addReplacement,
 	setOpts: setOpts,
 	handleRequest: handleRequest
-}
-
-function addReplacement(searchFor, replaceWith) {
-	util.addReplacement(searchFor, replaceWith)
-	return module.exports
 }
 
 function addPath() {
@@ -91,9 +85,11 @@ function handleRequest(req, res) {
 }
 
 function _handleMainModuleRequest(reqPath, req, res) {
-	var prefix = util.hasAddedPath(reqPath.split('/')[0]) ? '' : './',
-		modulePath = util.resolve(prefix + reqPath, opts.path)
+	var prefix = util.hasAddedPath(reqPath.split('/')[0]) ? '' : './'
+	var modulePath = util.resolvePath(prefix + reqPath, opts.path)
 	if (!modulePath) { return _sendError(res, 'Could not find module "'+reqPath+'" from "'+opts.path+'"') }
+
+
 
 	try { var deps = util.getDependencyList(modulePath) }
 	catch(err) { return _sendError(res, 'in util.getDependencyList: ' + err) }
@@ -147,12 +143,12 @@ function _handleModuleRequest(reqPath, res) {
 }
 
 function _getModuleCode(res, reqPath) {
-	var _closureStart = ';(function() {',
-		_moduleDef = 'var module = {exports:{}}; var exports = module.exports;',
-		_closureEnd = '})()'
+	var _closureStart = ';(function() {'
+	var _moduleDef = 'var module = {exports:{}}; var exports = module.exports;'
+	var _closureEnd = '})()'
 
-	var code = util.getCode(reqPath),
-		requireStatements = util.getRequireStatements(code)
+	var code = util.getCode(reqPath)
+	var requireStatements = util.getRequireStatements(code)
 
 	for (var i=0, requireStmnt; requireStmnt = requireStatements[i]; i++) {
 		try { var depPath = util.resolveRequireStatement(requireStmnt, reqPath) }
@@ -177,8 +173,8 @@ function _sendError(res, msg) {
 }
 
 function _getBase() {
-	var host = opts.host,
-		port = (!opts.usePagePort && opts.port)
+	var host = opts.host
+	var port = (!opts.usePagePort && opts.port)
 	
 	if (host && port) {
 		return '//' + host + ':' + port + '/' + opts.root
