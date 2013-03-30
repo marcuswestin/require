@@ -8,20 +8,8 @@ module.exports = {
 	mount: mount,
 	connect: connect,
 	isRequireRequest: isRequireRequest,
-	addPath: addPath,
-	addFile: addFile,
 	setOpts: setOpts,
 	handleRequest: handleRequest
-}
-
-function addPath() {
-	util.addPath.apply(util, arguments)
-	return module.exports
-}
-
-function addFile() {
-	util.addFile.apply(util, arguments)
-	return module.exports
 }
 
 function listen(port, _opts) {
@@ -85,8 +73,7 @@ function handleRequest(req, res) {
 }
 
 function _handleMainModuleRequest(reqPath, req, res) {
-	var prefix = util.hasAddedPath(reqPath.split('/')[0]) ? '' : './'
-	var modulePath = util.resolvePath(prefix + reqPath, opts.path)
+	var modulePath = util.resolvePath('./' + reqPath, opts.path)
 	if (!modulePath) { return _sendError(res, 'Could not find module "'+reqPath+'" from "'+opts.path+'"') }
 
 

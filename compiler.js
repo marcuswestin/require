@@ -7,33 +7,7 @@ var resolve = require('./lib/resolve')
 module.exports = {
 	compile: compileFile,
 	compileHTML: compileHTMLFile,
-	compileCode: compileCode,
-	dontAddClosureForModule: dontAddClosureForModule,
-	dontIncludeModule: dontIncludeModule,
-	addPath: addPath,
-	addFile: addFile
-}
-
-var _ignoreClosuresFor = []
-function dontAddClosureForModule(searchFor) {
-	_ignoreClosuresFor.push(searchFor)
-	return module.exports
-}
-
-var _ignoreModules = []
-function dontIncludeModule(module) {
-	_ignoreModules.push(module)
-	return module.exports
-}
-
-function addPath() {
-	util.addPath.apply(util, arguments)
-	return module.exports
-}
-
-function addFile() {
-	util.addFile.apply(util, arguments)
-	return module.exports
+	compileCode: compileCode
 }
 
 /* api
@@ -105,8 +79,6 @@ var _minifyRequireStatements = function(code, modules) {
 	return code
 }
 
-var _nodePaths = process.env.NODE_PATH.split(':')
-var _pathnameGroupingRegex = /require\s*\(['"]([\w\/\.-]*)['"]\)/
 var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 	var requireStatements = util.getRequireStatements(code)
 
@@ -137,40 +109,21 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 }
 
 var _concatModules = function(modules) {
-	var code = function(modulePath) {
-		for (var i=0; i<_ignoreModules.length; i++) {
-			if (modulePath.match(_ignoreModules[i])) {
-				return ''
-			}
-		}
-		
-		var ignoreClosure = false
-		for (var i=0; i<_ignoreClosuresFor.length; i++) {
-			if (modulePath.match(_ignoreClosuresFor[i])) {
-				ignoreClosure = true
-				break
-			}
-		}
-		
+	var getClosuredModule = function(modulePath) {
 		return [
-			ignoreClosure ? '' : ';(function() {',
+			';(function() {',
 			'	// ' + modulePath,
 			'	var module = __require__["'+modulePath+'"] = {exports:{}}, exports = module.exports;',
 			modules[modulePath],
-			ignoreClosure ? '' : '})()'
+			'})()'
 		].join('\n')
 	}
 
 	var moduleDefinitions = []
 	for (var i=1, modulePath; modulePath = modules[i]; i++) {
-		moduleDefinitions.push(code(modulePath))
+		moduleDefinitions.push(getClosuredModule(modulePath))
 	}
-	moduleDefinitions.push(code(modules[0])) // __main__
+	moduleDefinitions.push(getClosuredModule(modules[0])) // __main__
 
 	return moduleDefinitions.join('\n\n')
-}
-
-var _repeat = function(str, times) {
-	if (times < 0) { return '' }
-	return new Array(times + 1).join(str)
 }
