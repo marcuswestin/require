@@ -1,5 +1,9 @@
 TODO
-- write unit tests
+
+intended v0.5.0
++ Major cleanup
++ Remove old unused functionality
++ Load modules in parallel (faster dev mode)
 
 v0.4.9
 + Make the max length of lines an option and make it quite short by default for easier debugging

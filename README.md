@@ -28,7 +28,7 @@ Install
 
 Run
 ===
-Start dev server""
+Start dev server
 
 	require serve ./example --port 1234 --host localhost
 
@@ -37,7 +37,7 @@ In your HTML:
 	<script src="//localhost:1234/require/client"></script>
 
 This is like calling require('client') from inside ./example.
-[Read more on node's require path resolution](http://nodejs.org/docs/latest/api/all.html#modules)
+[Read more on node's require path resolution](http://nodejs.org/api/modules.html)
 
 Compile
 =======
@@ -47,7 +47,7 @@ Compile
 
 Use programmatically
 ====================
-In your node js:
+In node:
 
 	require('require/server').listen(1234, __dirname + '/example')
 
