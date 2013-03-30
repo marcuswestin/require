@@ -1,7 +1,11 @@
 var http = require('http')
 var fs = require('fs')
 var path = require('path')
-var util = require('./lib/util')
+var extend = require('std/extend')
+var getDependencyList = require('./lib/getDependencyList')
+var getRequireStatements = require('./lib/getRequireStatements')
+var getCode = require('./lib/getCode')
+var resolve = require('./lib/resolve')
 
 module.exports = {
 	listen: listen,
@@ -54,7 +58,7 @@ var opts = {
 }
 
 function setOpts(_opts) {
-	opts = util.extend(_opts, opts)
+	opts = extend(_opts, opts)
 }
 
 function _normalizeURL(url) {
@@ -73,13 +77,13 @@ function handleRequest(req, res) {
 }
 
 function _handleMainModuleRequest(reqPath, req, res) {
-	var modulePath = util.resolvePath('./' + reqPath, opts.path)
+	var modulePath = resolve.path('./' + reqPath, opts.path)
 	if (!modulePath) { return _sendError(res, 'Could not find module "'+reqPath+'" from "'+opts.path+'"') }
 
 
 
-	try { var deps = util.getDependencyList(modulePath) }
-	catch(err) { return _sendError(res, 'in util.getDependencyList: ' + err) }
+	try { var deps = getDependencyList(modulePath) }
+	catch(err) { return _sendError(res, 'in getDependencyList: ' + err) }
 
 	var response = ['__require__ = {}', 'require=function(){}']
   
@@ -90,9 +94,9 @@ function _handleMainModuleRequest(reqPath, req, res) {
 	
 	if (isMobile) {
 		// mobile clients take too long per js file request. Inline all the JS into a single request
-		for (var i=0, dependency; dependency = deps[i]; i++) {
+		each(deps, function(dependency) {
 			response.push(_getModuleCode(res, dependency) + "\n")
-		}
+		})
 	} else {
 		response.push(
 			'__require__.__scripts = []',
@@ -105,10 +109,10 @@ function _handleMainModuleRequest(reqPath, req, res) {
 			isPhantom ? '	}, 20)' : '',
 		'}')
 
-		for (var i=0, dependency; dependency = deps[i]; i++) {
+		each(deps, function(dependency) {
 			var src = _getBase() + '/' + dependency
 			response.push('__require__.__scripts.push("'+src+'")')
-		}
+		})
 
 		response.push('__require__.__loadNext()')
 	}
@@ -134,15 +138,17 @@ function _getModuleCode(res, reqPath) {
 	var _moduleDef = 'var module = {exports:{}}; var exports = module.exports;'
 	var _closureEnd = '})()'
 
-	var code = util.getCode(reqPath)
-	var requireStatements = util.getRequireStatements(code)
+	var code = getCode(reqPath)
+	var requireStatements = getRequireStatements(code)
 
-	for (var i=0, requireStmnt; requireStmnt = requireStatements[i]; i++) {
-		try { var depPath = util.resolveRequireStatement(requireStmnt, reqPath) }
-		catch (e) { _sendError(res, e.message || e) }
-		if (!depPath) { return _sendError(res, 'Could not resolve module') }
-
-		code = code.replace(requireStmnt, '__require__["'+depPath+'"]')
+	try {
+		each(requireStatements, function(requireStmnt) {
+			var depPath = resolve.requireStatement(requireStmnt, reqPath)
+			if (!depPath) { throw 'Could not resolve module' }
+			code = code.replace(requireStmnt, '__require__["'+depPath+'"]')
+		})
+	} catch(e) {
+		_sendError(res, e.message || e)
 	}
 
 	return _closureStart

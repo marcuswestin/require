@@ -1,8 +1,10 @@
 var fs = require('fs')
 var path = require('path')
-var util = require('./lib/util')
+var extend = require('std/extend')
+var each = require('std/each')
 var getCode = require('./lib/getCode')
 var resolve = require('./lib/resolve')
+var getRequireStatements = require('./lib/getRequireStatements')
 
 module.exports = {
 	compile: compileFile,
@@ -14,13 +16,13 @@ module.exports = {
  *****/
 function compileFile(filePath, opts) {
 	filePath = path.resolve(filePath)
-	opts = util.extend(opts, { basePath:path.dirname(filePath), toplevel:true })
+	opts = extend(opts, { basePath:path.dirname(filePath), toplevel:true })
 	var code = getCode(filePath)
 	return _compile(code, opts, filePath)
 }
 
 function compileCode(code, opts) {
-	opts = util.extend(opts, { basePath:process.cwd(), toplevel:true })
+	opts = extend(opts, { basePath:process.cwd(), toplevel:true })
 	return _compile(code, opts, '<code passed into compiler.compile()>')
 }
 
@@ -70,25 +72,25 @@ var _compileModule = function(code, pathBase, mainModule) {
 }
 
 var _minifyRequireStatements = function(code, modules) {
-	for (var i=0, modulePath; modulePath = modules[i]; i++) {
+	each(modules, function(modulePath, i) {
 		var escapedPath = modulePath.replace(/\//g, '\\/').replace('(','\\(').replace(')','\\)')
 		var regex = new RegExp('__require__\\["'+ escapedPath +'"\\]', 'g')
 		
 		code = code.replace(regex, '__require__["_'+ i +'"]')
-	}
+	})
 	return code
 }
 
 var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
-	var requireStatements = util.getRequireStatements(code)
+	var requireStatements = getRequireStatements(code)
 
 	if (!requireStatements.length) {
 		modules[modulePath] = code
 		return
 	}
 
-	for (var i=0, requireStatement; requireStatement = requireStatements[i]; i++) {
-		var subModulePath = util.resolveRequireStatement(requireStatement, modulePath)
+	each(requireStatements, function(requireStatement) {
+		var subModulePath = resolve.requireStatement(requireStatement, modulePath)
 
 		if (!subModulePath) {
 			throw new Error("Require Compiler Error: Cannot find module '"+ rawModulePath +"' (in '"+ modulePath +"')")
@@ -103,7 +105,7 @@ var _replaceRequireStatements = function(modulePath, code, modules, pathBase) {
 			_replaceRequireStatements(subModulePath, newModuleCode, modules, newPathBase)
 			modules.push(subModulePath)
 		}
-	}
+	})
 
 	modules[modulePath] = code
 }
