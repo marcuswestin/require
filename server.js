@@ -111,7 +111,7 @@ function _handleMainModuleRequest(reqPath, req, res) {
 		response.push('__require__.__loadNext()')
 	}
 
-	var buf = new Buffer(response.join('\n'), encoding='utf8')
+	var buf = new Buffer(response.join('\n'))
 	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
 	res.end(buf)
 }
@@ -122,7 +122,7 @@ function _handleModuleRequest(reqPath, res) {
 
 	code += '\n__require__.__loadNext()'
 	
-	var buf = new Buffer(code, encoding='utf8')
+	var buf = new Buffer(code)
 	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
 	res.end(buf)
 }
