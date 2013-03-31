@@ -1,6 +1,6 @@
 TODO
 
-intended v0.5.0
+v0.5.0
 + Major cleanup
 + Remove old unused functionality
 + Load modules in parallel (faster dev mode)
