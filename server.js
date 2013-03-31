@@ -124,7 +124,7 @@ function _handleModuleRequest(reqPath, res) {
 	try { var code = _getModuleCode(res, reqPath) }
 	catch(err) { return _sendError(res, err.stack || err) }
 
-	code += '\n\n__require__.onModuleLoaded()'
+	code += '\n\n'
 	
 	var buf = new Buffer(code)
 	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
@@ -144,11 +144,11 @@ function _handleModuleRequest(reqPath, res) {
 			_sendError(res, e.message || e)
 		}
 
-		var _closureStart = ';(function() {'
-		var _moduleDef = 'var module={exports:{}};var exports=module.exports;'
-		var _closureEnd = '})()'
-		return _closureStart + _moduleDef + '   ' + code + // all on the first line to make error line number reports correct
-			'\n__require__["'+reqPath+'"]=module.exports ' + _closureEnd
+		var _closureStart = ';(function(){'
+		var _moduleDef = 'var module={exports:{}},exports=module.exports;/*FILE BEGIN*/ '
+		var _closureEnd = '/*FILE END*/__require__["'+reqPath+'"]=module.exports; __require__.onModuleLoaded()\n})()'
+		return _closureStart + _moduleDef + code + // all on the first line to make error line number reports correct
+			'\n' + _closureEnd
 	}
 }
 
