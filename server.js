@@ -84,31 +84,38 @@ function _handleMainModuleRequest(reqPath, req, res) {
 	try { var dependencyTree = getDependencyLevels(mainModulePath) }
 	catch(err) { return _sendError(res, 'in getDependencyLevels: ' + (err.message || err)) }
 
-	var response = [
-		'__require__ = {',
-		'	urlBase: "'+getUrlBase()+'",',
-		'	levels: '+JSON.stringify(dependencyTree)+',',
-		'	loadNextLevel: '+(function() {
-				if (!__require__.levels.length) { return } // all done!
-				var modules = __require__.currentLevel = __require__.levels.shift()
-				var head = document.getElementsByTagName('head')[0]
-				for (var i=0; i<modules.length; i++) {
-					var url = location.protocol + '//' + location.host + __require__.urlBase + modules[i]
-					head.appendChild(document.createElement('script')).src = url
-				}
-			}).toString()+',',
-		'	onModuleLoaded: '+(function() {
-				__require__.currentLevel.pop()
-				if (__require__.currentLevel.length) { return }
-				__require__.loadNextLevel()
-			}).toString()+',',
-		'}',
-		'__require__.loadNextLevel()'
-	]
+	function clientBootstrapFn(urlBase, levels) {
+		// This function gets sent to the client as toString
+		__require__ = {
+			loadNextLevel: loadNextLevel,
+			onModuleLoaded: onModuleLoaded
+		}
 
-	var buf = new Buffer(response.join('\n'))
-	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
-	res.end(buf)
+		var currentLevel = null
+		loadNextLevel()
+
+		function loadNextLevel() {
+			if (!levels.length) { return } // all done!
+			currentLevel = levels.shift()
+			var head = document.getElementsByTagName('head')[0]
+			for (var i=0; i<currentLevel.length; i++) {
+				var url = location.protocol + '//' + location.host + urlBase + currentLevel[i]
+				head.appendChild(document.createElement('script')).src = url
+			}
+		}
+
+		function onModuleLoaded() {
+			currentLevel.pop()
+			if (currentLevel.length == 0) {
+				loadNextLevel()
+			}
+		}
+	}
+	
+	var paramsString = map([getUrlBase(), dependencyTree], JSON.stringify).join(',\n\t\t')
+	var response = new Buffer('\t('+clientBootstrapFn.toString()+')(\n\t\t'+paramsString+'\n\t)')
+	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':response.length, 'Content-Type':'text/javascript' })
+	res.end(response)
 }
 
 function _asString(fn) { return fn.toString() }
