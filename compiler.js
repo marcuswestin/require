@@ -44,21 +44,22 @@ var _compile = function(code, opts, mainModule) {
 	var code = 'var __require__ = {}, require=function(){}\n' + _compileModule(code, opts.basePath, mainModule)
 	if (opts.minify === false) { return code } // TODO use uglifyjs' beautifier?
 
-	if (opts.max_line_length == null) {
-		opts.max_line_length = 120
-	}
-	
-	var uglifyJS = require('uglify-js')
-
-	var ast = uglifyJS.parser.parse(code, opts.strict_semicolons)
-	ast = uglifyJS.uglify.ast_mangle(ast, opts)
-	ast = uglifyJS.uglify.ast_squeeze(ast, opts)
-	
-	var result = uglifyJS.uglify.gen_code(ast, opts)
-	if (opts.max_line_length) {
-		result = uglifyJS.uglify.split_lines(result, opts.max_line_length)
-	}
-	return result
+	var UglifyJS = require('uglify-js')
+	var result = UglifyJS.minify(code, {
+		fromString:true,
+		mangle:true,
+		output: {
+			// http://lisperator.net/uglifyjs/codegen
+			max_line_len:200,
+			semicolons:false
+		},
+		compress: {
+			// http://lisperator.net/uglifyjs/compress
+			unsafe:false
+		}
+	})
+	// also see result.map
+	return result.code
 }
 
 /* util
