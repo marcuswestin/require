@@ -83,39 +83,57 @@ function _handleMainModuleRequest(reqPath, req, res) {
 
 	try { var dependencyTree = getDependencyLevels(mainModulePath) }
 	catch(err) { return _sendError(res, 'in getDependencyLevels: ' + (err.message || err)) }
-
-	function clientBootstrapFn(urlBase, levels) {
-		// This function gets sent to the client as toString
-		__require__ = {
-			loadNextLevel: loadNextLevel,
-			onModuleLoaded: onModuleLoaded
-		}
-
-		var currentLevel = null
-		loadNextLevel()
-
-		function loadNextLevel() {
-			if (!levels.length) { return } // all done!
-			currentLevel = levels.shift()
-			var head = document.getElementsByTagName('head')[0]
-			for (var i=0; i<currentLevel.length; i++) {
-				var url = location.protocol + '//' + location.host + urlBase + currentLevel[i]
-				head.appendChild(document.createElement('script')).src = url
-			}
-		}
-
-		function onModuleLoaded() {
-			currentLevel.pop()
-			if (currentLevel.length == 0) {
-				loadNextLevel()
-			}
-		}
-	}
 	
-	var paramsString = map([getUrlBase(), dependencyTree], JSON.stringify).join(',\n\t\t')
-	var response = new Buffer('\t('+clientBootstrapFn.toString()+')(\n\t\t'+paramsString+'\n\t)')
+	var userAgent = req.headers['user-agent']
+	var isMobile = userAgent.match('iPad') || userAgent.match('iPod') || userAgent.match('iPhone') || userAgent.match('Android')
+	
+	var response = isMobile ? _getMobilePayload() : _getNormalPayload()
+	
 	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':response.length, 'Content-Type':'text/javascript' })
 	res.end(response)
+
+	function _getMobilePayload() {
+		var result = ['__require__={loadNextModule:function(){},onModuleLoaded:function(){}}']
+		each(dependencyTree, function(level) {
+			each(level, function(dependency) {
+				result.push(';(function(){ '+_getModuleCode(res, dependency)+' }());')
+			})
+		})
+		return new Buffer(result.join('\n'))
+	}
+	
+	function _getNormalPayload() {
+		var paramsString = map([getUrlBase(), dependencyTree], JSON.stringify).join(',\n\t\t')
+		return new Buffer('\t('+clientBootstrapFn.toString()+')(\n\t\t'+paramsString+'\n\t)')	
+		
+		function clientBootstrapFn(urlBase, levels) {
+			// This function gets sent to the client as toString
+			__require__ = {
+				loadNextLevel: loadNextLevel,
+				onModuleLoaded: onModuleLoaded
+			}
+
+			var currentLevel = null
+			loadNextLevel()
+
+			function loadNextLevel() {
+				if (!levels.length) { return } // all done!
+				currentLevel = levels.shift()
+				var head = document.getElementsByTagName('head')[0]
+				for (var i=0; i<currentLevel.length; i++) {
+					var url = location.protocol + '//' + location.host + urlBase + currentLevel[i]
+					head.appendChild(document.createElement('script')).src = url
+				}
+			}
+
+			function onModuleLoaded() {
+				currentLevel.pop()
+				if (currentLevel.length == 0) {
+					loadNextLevel()
+				}
+			}
+		}		
+	}
 }
 
 function _asString(fn) { return fn.toString() }
@@ -129,27 +147,27 @@ function _handleModuleRequest(reqPath, res) {
 	var buf = new Buffer(code)
 	res.writeHead(200, { 'Cache-Control':'no-cache', 'Expires':'Fri, 31 Dec 1998 12:00:00 GMT', 'Content-Length':buf.length, 'Content-Type':'text/javascript' })
 	res.end(buf)
+}
 
-	function _getModuleCode(res, reqPath) {
-		var code = getCode(reqPath)
-		var requireStatements = getRequireStatements(code)
+function _getModuleCode(res, reqPath) {
+	var code = getCode(reqPath)
+	var requireStatements = getRequireStatements(code)
 
-		try {
-			each(requireStatements, function(requireStmnt) {
-				var depPath = resolve.requireStatement(requireStmnt, reqPath)
-				if (!depPath) { throw 'Could not resolve module' }
-				code = code.replace(requireStmnt, '__require__["'+depPath+'"]')
-			})
-		} catch(e) {
-			_sendError(res, e.message || e)
-		}
-
-		var _closureStart = ';(function(){'
-		var _moduleDef = 'var module={exports:{}},exports=module.exports;/*FILE BEGIN*/ '
-		var _closureEnd = '/*FILE END*/__require__["'+reqPath+'"]=module.exports; __require__.onModuleLoaded()\n})()'
-		return _closureStart + _moduleDef + code + // all on the first line to make error line number reports correct
-			'\n' + _closureEnd
+	try {
+		each(requireStatements, function(requireStmnt) {
+			var depPath = resolve.requireStatement(requireStmnt, reqPath)
+			if (!depPath) { throw 'Could not resolve module' }
+			code = code.replace(requireStmnt, '__require__["'+depPath+'"]')
+		})
+	} catch(e) {
+		_sendError(res, e.message || e)
 	}
+
+	var _closureStart = ';(function(){'
+	var _moduleDef = 'var module={exports:{}},exports=module.exports;/*FILE BEGIN*/ '
+	var _closureEnd = '/*FILE END*/__require__["'+reqPath+'"]=module.exports; __require__.onModuleLoaded()\n})()'
+	return _closureStart + _moduleDef + code + // all on the first line to make error line number reports correct
+		'\n' + _closureEnd
 }
 
 function _sendError(res, msg) {
