@@ -57,7 +57,7 @@ var opts = {
 function setOpts(_opts) {
 	opts = extend(_opts, opts)
 	if (opts.path) {
-		resolve.nodePaths.push(opts.path)
+		resolve._nodePaths.push(opts.path)
 	}
 }
 function getUrlBase() {
