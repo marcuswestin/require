@@ -3,6 +3,8 @@ var fs = require('fs')
 var path = require('path')
 var extend = require('std/extend')
 var isObject = require('std/isObject')
+var map = require('std/map')
+var each = require('std/each')
 var getDependencyLevels = require('./lib/getDependencyLevels')
 var getRequireStatements = require('./lib/getRequireStatements')
 var getCode = require('./lib/getCode')
@@ -52,7 +54,12 @@ var opts = {
 	port: null,
 	host: null
 }
-function setOpts(_opts) { opts = extend(_opts, opts) }
+function setOpts(_opts) {
+	opts = extend(_opts, opts)
+	if (opts.path) {
+		resolve.nodePaths.push(opts.path)
+	}
+}
 function getUrlBase() {
 	var basePort = (!opts.usePagePort && opts.port)
 	if (opts.host && basePort) {
@@ -121,7 +128,8 @@ function _handleMainModuleRequest(reqPath, req, res) {
 				currentLevel = levels.shift()
 				var head = document.getElementsByTagName('head')[0]
 				for (var i=0; i<currentLevel.length; i++) {
-					var url = location.protocol + '//' + location.host + urlBase + currentLevel[i]
+					// var url = location.protocol + '//' + location.host + urlBase + currentLevel[i]
+					var url = urlBase + currentLevel[i]
 					head.appendChild(document.createElement('script')).src = url
 				}
 			}
