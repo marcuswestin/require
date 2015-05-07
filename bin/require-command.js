@@ -25,6 +25,16 @@ while (args.length) {
 		case '--host':
 			opts.host = args.shift()
 			break
+		case '--root':
+			opts.root = args.shift()
+			break
+		case '--usePagePort':
+			if (args[0] && args[0][0] != '-') {
+				console.log('Unexpected value for --usePagePort flag', args[0])
+				process.exit(1)
+			}
+			opts.usePagePort = true
+			break
 		default:
 			console.log('Unknown option', arg)
 			process.exit(1)
