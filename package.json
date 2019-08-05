@@ -15,8 +15,8 @@
   },
   "author": "Marcus Westin <narcvs@gmail.com> (http://marcuswest.in)",
   "dependencies": {
-    "uglify-js": "2.3.0",
-    "std": "0.1.40"
+    "std": "0.1.40",
+    "uglify-js": "3.6.0"
   },
   "devDependencies": {},
   "directories": {}
