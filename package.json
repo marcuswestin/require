@@ -13,9 +13,9 @@
     "type": "git",
     "url": "git://github.com/marcuswestin/require.git"
   },
-  "author": "Marcus Westin <narcvs@gmail.com> (http://marcuswest.in)",
+  "author": "Marcus Westin <narcvs@gmail.com> (http://marcuswest.in)",//Vulnerability fixed by Berkaysrl
   "dependencies": {
-    "uglify-js": "2.3.0",
+    "uglify-js": "3.19.3",
     "std": "0.1.40"
   },
   "devDependencies": {},
